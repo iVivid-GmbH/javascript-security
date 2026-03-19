@@ -81,8 +81,9 @@ layout: default
 layout: section
 ---
 
-# 🔴 Category 1
-## Client-Side Attack Vectors
+# 🔴 Client-Side Attack Vectors
+> *"The web browser is the most hostile software development environment imaginable."*
+> — Douglas Crockford
 
 ---
 
@@ -277,8 +278,9 @@ res.redirect(ALLOWED.includes(next)
 layout: section
 ---
 
-# 🟠 Category 2
-## Injection Attacks
+# 🟠 Injection Attacks
+> *"All user input is evil until proven otherwise."*
+> — Michael Howard
 
 ---
 
@@ -378,8 +380,9 @@ Unsanitized input in LDAP filters enables authentication bypass or directory dat
 layout: section
 ---
 
-# 🟡 Category 3
-## Cross-Origin & Request Forgery
+# 🟡 Cross-Origin & Request Forgery
+> *"Trust is a vulnerability. Verify everything."*
+> — Security Engineering Principle
 
 ---
 
@@ -564,8 +567,9 @@ async function isSafeUrl(urlStr) {
 layout: section
 ---
 
-# 🟢 Category 4
-## Authentication & Authorization
+# 🟢 Authentication & Authorization
+> *"Security is not a product, but a process."*
+> — Bruce Schneier
 
 ---
 
@@ -814,8 +818,9 @@ app.post('/logout', (req, res) => {
 layout: section
 ---
 
-# 🔵 Category 5
-## Transport & Network Security
+# 🔵 Transport & Network Security
+> *"In the digital world, a secure channel is the foundation of all trust."*
+> — Transport Layer Security Principle
 
 ---
 
@@ -883,8 +888,9 @@ ws.on('message', async (data) => {
 layout: section
 ---
 
-# 🟣 Category 6
-## HTTP Security Headers & Browser Policies
+# 🟣 HTTP Security Headers & Browser Policies
+> *"Defense in depth means never relying on a single line of defense."*
+> — NIST Security Principle
 
 ---
 
@@ -1008,8 +1014,9 @@ app.use(helmet());
 layout: section
 ---
 
-# ⚫ Category 7
-## Supply Chain & Dependency Security
+# ⚫ Supply Chain & Dependency Security
+> *"A chain is only as strong as its weakest link — and you didn't write most of your code."*
+> — Supply Chain Security Principle
 
 ---
 
@@ -1190,8 +1197,9 @@ Restrict via CSP: `script-src 'self' https://analytics.vendor.com`
 layout: section
 ---
 
-# 🔶 Category 8
-## API & Backend Communication Security
+# 🔶 API & Backend Communication Security
+> *"Never trust the client. Never trust the network. Validate everything server-side."*
+> — API Security Best Practice
 
 ---
 
@@ -1312,8 +1320,9 @@ await User.update({ name, email });
 layout: section
 ---
 
-# 🔷 Category 9
-## Availability & Monitoring
+# 🔷 Availability & Monitoring
+> *"The question is not if you will be attacked, but when — and whether you'll know."*
+> — Security Operations Principle
 
 ---
 
