@@ -11,6 +11,9 @@ on:
         required: true
         default: 'v1.0.0'
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 permissions:
   contents: write  # needed to create releases and upload assets
 
@@ -26,10 +29,9 @@ jobs:
         uses: actions/setup-node@v4   # latest: v4.x
         with:
           node-version: '22'   # upgraded from 20 → 22 (current LTS)
-          cache: 'npm'
 
       - name: Install Node dependencies
-        run: npm ci
+        run: npm install --no-audit --no-fund
 
       - name: Install Playwright browsers (Chromium for PDF export)
         run: npx playwright install chromium --with-deps
