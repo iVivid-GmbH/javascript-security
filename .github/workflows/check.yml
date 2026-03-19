@@ -1,0 +1,139 @@
+name: Quality Checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  link-check:
+    name: Check internal links
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check README links resolve to real files
+        run: |
+          python3 << 'PYEOF'
+          import re, sys, os
+
+          base = os.getcwd()
+          readme = open("README.md").read()
+
+          # Extract all local .md hrefs: [text](./filename.md)
+          links = re.findall(r'\]\(\./([0-9a-z\-]+\.md)\)', readme)
+          missing = [l for l in links if not os.path.exists(os.path.join(base, l))]
+
+          if missing:
+              print(f"❌ README contains {len(missing)} broken link(s):")
+              for m in missing:
+                  print(f"  - {m}")
+              sys.exit(1)
+          else:
+              print(f"✅ All {len(links)} README links resolve to existing files.")
+          PYEOF
+
+      - name: Check slides.html reference library links
+        run: |
+          python3 << 'PYEOF'
+          import re, sys, os
+
+          base = os.getcwd()
+          html = open("slides.html").read()
+
+          # Extract href="filename.md" from reference library section
+          links = re.findall(r'href="([\w\-]+\.md)"', html)
+          missing = [l for l in links if not os.path.exists(os.path.join(base, l))]
+
+          if missing:
+              print(f"❌ slides.html contains {len(missing)} broken link(s):")
+              for m in set(missing):
+                  print(f"  - {m}")
+              sys.exit(1)
+          else:
+              print(f"✅ All {len(set(links))} slides.html .md links resolve.")
+          PYEOF
+
+      - name: Check slides.md deep dive links
+        run: |
+          python3 << 'PYEOF'
+          import re, sys, os
+
+          base = os.getcwd()
+          md = open("slides.md").read()
+
+          # href="./filename.md" in HTML blocks within slides.md
+          links = re.findall(r'href="\./([0-9a-z\-]+\.md)"', md)
+          missing = [l for l in links if not os.path.exists(os.path.join(base, l))]
+
+          if missing:
+              print(f"❌ slides.md contains {len(missing)} broken deep dive link(s):")
+              for m in set(missing):
+                  print(f"  - {m}")
+              sys.exit(1)
+          else:
+              print(f"✅ All {len(set(links))} slides.md deep dive links resolve.")
+          PYEOF
+
+  file-count:
+    name: Verify concept file inventory
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Confirm expected concept files exist
+        run: |
+          python3 << 'PYEOF'
+          import re, sys, os
+
+          # Files that should exist (current canonical set, gaps are intentional)
+          required = [f"{n:02d}" for n in range(1, 50)
+                      if n not in (12, 26)]   # intentionally removed concepts
+
+          missing = []
+          for prefix in required:
+              matches = [f for f in os.listdir('.') if f.startswith(prefix + '-') and f.endswith('.md')]
+              if not matches:
+                  missing.append(prefix)
+
+          if missing:
+              print(f"❌ Missing concept file(s) for prefix(es): {missing}")
+              sys.exit(1)
+          else:
+              print(f"✅ All {len(required)} expected concept files present.")
+          PYEOF
+
+  sri-check:
+    name: Check CDN SRI hashes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify CDN resources have integrity attributes
+        run: |
+          python3 << 'PYEOF'
+          import re, sys
+
+          html = open("slides.html").read()
+          # Find CDN links/scripts
+          cdn_tags = re.findall(r'<(?:link|script)\b[^>]*(https://cdn\.[^"]+)"[^>]*>', html)
+          missing_sri = []
+          for url in cdn_tags:
+              # Check that the tag containing this URL also has integrity=
+              tag_pattern = re.compile(
+                  r'<(?:link|script)\b[^>]*' + re.escape(url) + r'"[^>]*>')
+              for tag in tag_pattern.findall(html):
+                  if 'integrity=' not in tag:
+                      missing_sri.append(url)
+
+          if missing_sri:
+              print(f"⚠️  {len(missing_sri)} CDN resource(s) missing SRI integrity attribute:")
+              for u in missing_sri:
+                  print(f"  - {u}")
+              print("\nRun: node scripts/add-sri.js  to generate and apply hashes.")
+              print("Then commit slides.html and push.")
+              sys.exit(1)
+          else:
+              print("✅ All CDN resources have SRI integrity attributes.")
+          PYEOF
