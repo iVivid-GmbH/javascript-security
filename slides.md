@@ -1,7 +1,7 @@
 ---
 theme: default
 title: JavaScript & Frontend Security
-titleTemplate: '%s — JS Security Reference'
+titleTemplate: '%s - JS Security Reference'
 description: A complete reference of crucial JavaScript, frontend, and frontend-backend-communication security concepts
 author: Torsten Zielke
 keywords: security, javascript, frontend, XSS, CSRF, CORS, JWT, OWASP
@@ -83,11 +83,11 @@ layout: section
 
 # 🔴 Client-Side Attack Vectors
 > *"The web browser is the most hostile software development environment imaginable."*
-> — Douglas Crockford
+> - Douglas Crockford
 
 ---
 
-# 01 — Cross-Site Scripting (XSS)
+# 01 - Cross-Site Scripting (XSS)
 
 **Attackers inject malicious scripts into trusted web pages that execute in the victim's browser.**
 
@@ -95,9 +95,9 @@ layout: section
 <div>
 
 ### 3 Types
-- **Stored XSS** — Script saved in DB, served to all visitors
-- **Reflected XSS** — Script in URL, reflected back in response
-- **DOM-based XSS** — Client-side JS processes attacker input
+- **Stored XSS** - Script saved in DB, served to all visitors
+- **Reflected XSS** - Script in URL, reflected back in response
+- **DOM-based XSS** - Client-side JS processes attacker input
 
 ### Attack Goal
 - Steal session cookies / tokens
@@ -129,11 +129,11 @@ layout: section
 </div>
 </div>
 
-<div class="mt-2 text-xs text-gray-400">📄 Deep dive: <code>01-xss-cross-site-scripting.md</code></div>
+<div class="mt-2 text-xs text-gray-400">📄 Deep dive: <a href="./01-xss-cross-site-scripting.md" target="_blank" class="text-blue-400 underline decoration-dotted hover:text-blue-300">01-xss-cross-site-scripting.md</a></div>
 
 ---
 
-# 02 — Clickjacking
+# 02 - Clickjacking
 
 **A transparent iframe overlays a legitimate site, tricking users into clicking UI they can't see.**
 
@@ -143,18 +143,18 @@ layout: section
 ### How It Works
 1. Attacker embeds target site in transparent `<iframe>`
 2. Positions malicious button under victim's cursor
-3. User thinks they click "Win a Prize!" — actually clicks "Delete Account"
+3. User thinks they click "Win a Prize!" - actually clicks "Delete Account"
 
 ### Variants
-- **UI Redressing** — fake overlays on real UI
-- **Likejacking** — tricking Facebook likes
-- **Cursorjacking** — fake cursor position
+- **UI Redressing** - fake overlays on real UI
+- **Likejacking** - tricking Facebook likes
+- **Cursorjacking** - fake cursor position
 
 </div>
 <div>
 
 ```bash
-# ✅ Prevention — HTTP Headers
+# ✅ Prevention - HTTP Headers
 
 # Block all framing:
 X-Frame-Options: DENY
@@ -174,11 +174,11 @@ Content-Security-Policy:
 </div>
 </div>
 
-<div class="mt-2 text-xs text-gray-400">📄 Deep dive: <code>02-clickjacking.md</code></div>
+<div class="mt-2 text-xs text-gray-400">📄 Deep dive: <a href="./02-clickjacking.md" target="_blank" class="text-blue-400 underline decoration-dotted hover:text-blue-300">02-clickjacking.md</a></div>
 
 ---
 
-# 03 — Prototype Pollution
+# 03 - Prototype Pollution
 
 **Attackers inject properties into `Object.prototype`, altering every object in the application.**
 
@@ -193,7 +193,7 @@ function merge(target, source) {
     if (typeof source[key] === 'object') {
       merge(target[key], source[key]);
     } else {
-      target[key] = source[key]; // 💀
+      target[key] = source[key]; // DANGEROUS: all objects now have this key
     }
   }
 }
@@ -209,7 +209,7 @@ merge({}, JSON.parse(
 
 ### ✅ Prevention
 ```js
-// Use Object.create(null) — no prototype
+// Use Object.create(null) - no prototype
 const safe = Object.create(null);
 
 // Freeze the prototype
@@ -229,11 +229,11 @@ if (!ALLOWED.has(key)) throw new Error();
 </div>
 </div>
 
-<div class="mt-2 text-xs text-gray-400">📄 Deep dive: <code>03-prototype-pollution.md</code></div>
+<div class="mt-2 text-xs text-gray-400">📄 Deep dive: <a href="./03-prototype-pollution.md" target="_blank" class="text-blue-400 underline decoration-dotted hover:text-blue-300">03-prototype-pollution.md</a></div>
 
 ---
 
-# 04–08 — More Client-Side Threats
+# 04–08 - More Client-Side Threats
 
 <div class="grid grid-cols-2 gap-4 text-sm mt-2">
 <div class="space-y-3">
@@ -303,10 +303,10 @@ remotes: {
 
 **Defences:**
 - Pin remote bundle hash in CI; fail build on mismatch
-- Never pass auth tokens to remotes — share only non-sensitive state
+- Never pass auth tokens to remotes - share only non-sensitive state
 - Sandbox untrusted remotes in `<iframe>` with `allow` policy
 - Apply a strict CSP scoped to each remote's origin
-- Audit `shared:` config — accidentally shared `react` or `lodash` can be hijacked
+- Audit `shared:` config - accidentally shared `react` or `lodash` can be hijacked
 
 </div>
 </div>
@@ -321,16 +321,16 @@ remotes: {
 **Framework XSS pitfalls:**
 
 ```jsx
-// ❌ React — raw HTML injection
+// ❌ React - raw HTML injection
 <div dangerouslySetInnerHTML={{ __html: userBio }} />
 
-// ❌ Vue — v-html with user content
+// ❌ Vue - v-html with user content
 <div v-html="userComment"></div>
 
-// ❌ Angular — bypassing sanitizer
+// ❌ Angular - bypassing sanitizer
 this.safe = this.san.bypassSecurityTrustHtml(input);
 
-// ❌ Next.js SSR — string interpolation into HTML
+// ❌ Next.js SSR - string interpolation into HTML
 `<div>${req.query.name}</div>` // XSS via SSR
 ```
 
@@ -340,19 +340,19 @@ this.safe = this.san.bypassSecurityTrustHtml(input);
 **Safe patterns:**
 
 ```jsx
-// ✅ React — sanitise before injecting
+// ✅ React - sanitise before injecting
 import DOMPurify from 'dompurify';
 <div dangerouslySetInnerHTML={{
   __html: DOMPurify.sanitize(userBio)
 }} />
 
-// ✅ Vue — text binding is always safe
+// ✅ Vue - text binding is always safe
 <p>{{ userComment }}</p>
 
 // ✅ Angular sanitizer is safe by default
 // Only bypass if content comes from your own CMS
 
-// ✅ Next.js — pass data through props, not HTML strings
+// ✅ Next.js - pass data through props, not HTML strings
 export async function getServerSideProps({ query }) {
   return { props: { name: query.name } }; // escaped by React
 }
@@ -367,11 +367,11 @@ layout: section
 
 # 🟠 Injection Attacks
 > *"All user input is evil until proven otherwise."*
-> — Michael Howard
+> - Michael Howard
 
 ---
 
-# 09 — SQL Injection
+# 09 - SQL Injection
 
 **Unsanitized user input embedded in SQL queries allows attackers to read, modify, or destroy database data.**
 
@@ -380,7 +380,7 @@ layout: section
 
 ### The Attack
 ```js
-// ❌ Vulnerable — string concatenation
+// ❌ Vulnerable - string concatenation
 const query = `SELECT * FROM users
   WHERE email = '${req.body.email}'`;
 
@@ -389,7 +389,7 @@ const query = `SELECT * FROM users
 // SELECT * FROM users WHERE email = ''
 // OR '1'='1'  ← returns ALL rows!
 
-// Even worse — dropping tables:
+// Even worse - dropping tables:
 // '; DROP TABLE users; --
 ```
 
@@ -401,7 +401,7 @@ const query = `SELECT * FROM users
 // pg (PostgreSQL)
 const result = await pool.query(
   'SELECT * FROM users WHERE email = $1',
-  [req.body.email]  // safe — never concatenated
+  [req.body.email]  // safe - never concatenated
 );
 
 // mysql2
@@ -410,7 +410,7 @@ const [rows] = await connection.execute(
   [req.body.email]
 );
 
-// Prisma ORM — safe by default
+// Prisma ORM - safe by default
 const user = await prisma.user.findUnique({
   where: { email: req.body.email }
 });
@@ -419,11 +419,11 @@ const user = await prisma.user.findUnique({
 </div>
 </div>
 
-<div class="mt-2 text-xs text-gray-400">📄 Deep dive: <code>09-sql-injection.md</code></div>
+<div class="mt-2 text-xs text-gray-400">📄 Deep dive: <a href="./09-sql-injection.md" target="_blank" class="text-blue-400 underline decoration-dotted hover:text-blue-300">09-sql-injection.md</a></div>
 
 ---
 
-# 10–13 — More Injection Types
+# 10–13 - More Injection Types
 
 <div class="grid grid-cols-2 gap-4 text-sm mt-2">
 <div class="space-y-3">
@@ -441,7 +441,7 @@ User input passed to `child_process.exec()` can execute arbitrary OS commands vi
 ```js
 // ❌ exec(`ping ${userInput}`)
 // ✅ execFile('ping', [userInput])
-//    — no shell, args are safe
+//    - no shell, args are safe
 ```
 
 </div>
@@ -451,7 +451,7 @@ User input passed to `child_process.exec()` can execute arbitrary OS commands vi
 - **Client-side**: User input in template literals → XSS
 - **Server-side (SSTI)**: User input in Handlebars/EJS/Pug templates can achieve **Remote Code Execution**
 ```js
-// ❌ EJS — RCE via template injection
+// ❌ EJS - RCE via template injection
 // ✅ Never pass user input as template string
 // ✅ Use auto-escaping, sanitize all variables
 // ✅ Avoid res.render with user-supplied views
@@ -466,11 +466,11 @@ layout: section
 
 # 🟡 Cross-Origin & Request Forgery
 > *"Trust is a vulnerability. Verify everything."*
-> — Security Engineering Principle
+> - Security Engineering Principle
 
 ---
 
-# 14 — CSRF (Cross-Site Request Forgery)
+# 14 - CSRF (Cross-Site Request Forgery)
 
 **A malicious site tricks the victim's authenticated browser into making unwanted requests to another site.**
 
@@ -479,7 +479,7 @@ layout: section
 
 ### How It Works
 ```html
-<!-- evil.com — victim visits this page -->
+<!-- evil.com - victim visits this page -->
 <!-- Browser auto-sends bank.com cookies! -->
 <form action="https://bank.com/transfer"
       method="POST" id="csrf">
@@ -490,7 +490,7 @@ layout: section
 ```
 
 ### Defenses
-1. **CSRF Tokens** — random value in form + header
+1. **CSRF Tokens** - random value in form + header
 2. **`SameSite=Strict`** cookie attribute
 3. **`SameSite=Lax`** (default in modern browsers)
 4. **Double Submit Cookie** pattern
@@ -526,11 +526,11 @@ app.use((req, res, next) => {
 </div>
 </div>
 
-<div class="mt-2 text-xs text-gray-400">📄 Deep dive: <code>14-csrf.md</code></div>
+<div class="mt-2 text-xs text-gray-400">📄 Deep dive: <a href="./14-csrf.md" target="_blank" class="text-blue-400 underline decoration-dotted hover:text-blue-300">14-csrf.md</a></div>
 
 ---
 
-# 15 — CORS Misconfiguration
+# 15 - CORS Misconfiguration
 
 **Overly permissive CORS headers expose APIs to unauthorized cross-origin access.**
 
@@ -539,10 +539,10 @@ app.use((req, res, next) => {
 
 ### Dangerous Misconfigs
 ```js
-// ❌ Wildcard + credentials — NEVER do this
+// ❌ Wildcard + credentials - NEVER do this
 app.use(cors({
   origin: '*',
-  credentials: true // INVALID — browser rejects
+  credentials: true // INVALID - browser rejects
 }));
 
 // ❌ Blindly reflecting Origin header
@@ -555,7 +555,7 @@ app.use((req, res, next) => {
 });
 
 // ❌ Trusting 'null' origin
-// (sandbox iframes send null — attackers exploit this)
+// (sandbox iframes send null - attackers exploit this)
 ```
 
 </div>
@@ -585,11 +585,11 @@ app.use(cors({
 </div>
 </div>
 
-<div class="mt-2 text-xs text-gray-400">📄 Deep dive: <code>15-cors.md</code></div>
+<div class="mt-2 text-xs text-gray-400">📄 Deep dive: <a href="./15-cors.md" target="_blank" class="text-blue-400 underline decoration-dotted hover:text-blue-300">15-cors.md</a></div>
 
 ---
 
-# 16 — SSRF (Server-Side Request Forgery)
+# 16 - SSRF (Server-Side Request Forgery)
 
 **The server fetches an attacker-specified URL, enabling access to internal services or cloud metadata.**
 
@@ -613,20 +613,20 @@ http://169.254.169.254/ (AWS, Azure, GCP)
 ```
 
 ### Blind SSRF
-Attacker triggers requests without seeing responses — uses timing or out-of-band DNS callbacks to confirm.
+Attacker triggers requests without seeing responses - uses timing or out-of-band DNS callbacks to confirm.
 
 </div>
 <div>
 
 ```js
-// ❌ Vulnerable — user-controlled URL
+// ❌ Vulnerable - user-controlled URL
 app.post('/fetch-image', async (req, res) => {
   const { url } = req.body;
   const data = await fetch(url); // SSRF!
   res.send(data);
 });
 
-// ✅ Secure — allowlist + DNS validation
+// ✅ Secure - allowlist + DNS validation
 const { URL } = require('url');
 const dns = require('dns').promises;
 
@@ -636,7 +636,7 @@ async function isSafeUrl(urlStr) {
   if (url.protocol !== 'https:') return false;
   const ALLOWED = ['cdn.example.com', 'api.example.com'];
   if (!ALLOWED.includes(url.hostname)) return false;
-  // Resolve DNS — block private IPs
+  // Resolve DNS - block private IPs
   const addrs = await dns.resolve4(url.hostname);
   return !addrs.some(isPrivateIP);
 }
@@ -645,7 +645,7 @@ async function isSafeUrl(urlStr) {
 </div>
 </div>
 
-<div class="mt-2 text-xs text-gray-400">📄 Deep dive: <code>16-ssrf.md</code></div>
+<div class="mt-2 text-xs text-gray-400">📄 Deep dive: <a href="./16-ssrf.md" target="_blank" class="text-blue-400 underline decoration-dotted hover:text-blue-300">16-ssrf.md</a></div>
 
 ---
 layout: section
@@ -653,13 +653,13 @@ layout: section
 
 # 🟢 Authentication & Authorization
 > *"Security is not a product, but a process."*
-> — Bruce Schneier
+> - Bruce Schneier
 
 ---
 
-# 17 — Broken Access Control
+# 17 - Broken Access Control
 
-**Users act outside their intended permissions — the #1 OWASP 2021 risk, found in 94% of apps tested.**
+**Users act outside their intended permissions - the #1 OWASP 2021 risk, found in 94% of apps tested.**
 
 <div class="grid grid-cols-2 gap-6 mt-3">
 <div>
@@ -693,7 +693,7 @@ const authMiddleware = async (req, res, next) => {
   try {
     // Verify signature with strong secret
     const payload = jwt.verify(token, process.env.JWT_SECRET);
-    // Look up permissions from DB — don't trust claims
+    // Look up permissions from DB - don't trust claims
     const user = await User.findById(payload.sub);
     req.user = user;
     next();
@@ -715,11 +715,11 @@ app.get('/admin', authMiddleware, requireRole('admin'), handler);
 </div>
 </div>
 
-<div class="mt-2 text-xs text-gray-400">📄 Deep dive: <code>17-broken-access-control.md</code> · <code>22-idor.md</code></div>
+<div class="mt-2 text-xs text-gray-400">📄 Deep dive: <a href="./17-broken-access-control.md" target="_blank" class="text-blue-400 underline decoration-dotted hover:text-blue-300">17-broken-access-control.md</a> · <a href="./22-idor.md" target="_blank" class="text-blue-400 underline decoration-dotted hover:text-blue-300">22-idor.md</a></div>
 
 ---
 
-# 18 — Authentication Failures
+# 18 - Authentication Failures
 
 **Weak credential handling and broken session management allow attackers to compromise user accounts. OWASP A07.**
 
@@ -728,7 +728,7 @@ app.get('/admin', authMiddleware, requireRole('admin'), handler);
 
 ### What Goes Wrong
 - Passwords hashed with MD5/SHA1 (crackable in seconds)
-- No MFA — single factor is single point of failure
+- No MFA - single factor is single point of failure
 - No account lockout → brute force succeeds
 - Sessions not invalidated on logout
 - Predictable / short session IDs
@@ -771,13 +771,13 @@ if (count > 0) throw new Error('Password found in breach data');
 </div>
 </div>
 
-<div class="mt-2 text-xs text-gray-400">📄 Deep dive: <code>18-authentication-failures.md</code></div>
+<div class="mt-2 text-xs text-gray-400">📄 Deep dive: <a href="./18-authentication-failures.md" target="_blank" class="text-blue-400 underline decoration-dotted hover:text-blue-300">18-authentication-failures.md</a></div>
 
 ---
 
-# 19 — JWT Security
+# 19 - JWT Security
 
-**JSON Web Tokens can be misconfigured in many ways — each leading to forged tokens and account takeover.**
+**JSON Web Tokens can be misconfigured in many ways - each leading to forged tokens and account takeover.**
 
 <div class="grid grid-cols-2 gap-6 mt-3">
 <div>
@@ -788,7 +788,7 @@ if (count > 0) throw new Error('Password found in breach data');
 ```js
 // Attacker forges header:
 // { "alg": "none", "typ": "JWT" }
-// No signature needed — some libraries accept!
+// No signature needed - some libraries accept!
 ```
 
 **Algorithm Confusion (RS256 → HS256)**
@@ -812,7 +812,7 @@ HS256 with short/guessable secret
 // ✅ Secure JWT implementation
 const jwt = require('jsonwebtoken');
 
-// Sign — strong secret, short expiry
+// Sign - strong secret, short expiry
 const token = jwt.sign(
   { sub: user.id, role: user.role },
   process.env.JWT_SECRET, // min 256-bit random
@@ -822,7 +822,7 @@ const token = jwt.sign(
   }
 );
 
-// Verify — always specify algorithm explicitly
+// Verify - always specify algorithm explicitly
 const payload = jwt.verify(token, process.env.JWT_SECRET, {
   algorithms: ['HS256'] // reject alg:none + confusion
 });
@@ -835,11 +835,11 @@ const payload = jwt.verify(token, process.env.JWT_SECRET, {
 </div>
 </div>
 
-<div class="mt-2 text-xs text-gray-400">📄 Deep dive: <code>19-jwt-security.md</code></div>
+<div class="mt-2 text-xs text-gray-400">📄 Deep dive: <a href="./19-jwt-security.md" target="_blank" class="text-blue-400 underline decoration-dotted hover:text-blue-300">19-jwt-security.md</a></div>
 
 ---
 
-# 20–22 — OAuth, Sessions & IDOR
+# 20–22 - OAuth, Sessions & IDOR
 
 <div class="grid grid-cols-2 gap-4 text-sm mt-2">
 <div class="space-y-3">
@@ -847,11 +847,11 @@ const payload = jwt.verify(token, process.env.JWT_SECRET, {
 **20 · OAuth 2.0 & OIDC Security**
 - Always use **Authorization Code + PKCE** flow
 - Validate `state` parameter to prevent CSRF
-- Validate `redirect_uri` against registered list — never use wildcards
+- Validate `redirect_uri` against registered list - never use wildcards
 - Validate ID token: `iss`, `aud`, `exp`, `nonce`
 - Never use Implicit flow (tokens in URL fragment!)
 
-**22 · IDOR — Insecure Direct Object References**
+**22 · IDOR - Insecure Direct Object References**
 Always verify resource ownership, not just authentication:
 ```js
 // ✅ Check ownership, not just authentication
@@ -904,11 +904,11 @@ layout: section
 
 # 🔵 Transport & Network Security
 > *"In the digital world, a secure channel is the foundation of all trust."*
-> — Transport Layer Security Principle
+> - Transport Layer Security Principle
 
 ---
 
-# 23–27 — Transport Security
+# 23–27 - Transport Security
 
 <div class="grid grid-cols-2 gap-4 text-sm mt-2">
 <div class="space-y-3">
@@ -1022,7 +1022,7 @@ await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, data);
 <div class="grid grid-cols-2 gap-6">
 <div>
 
-**Attack — Unkeyed header injection:**
+**Attack - Unkeyed header injection:**
 
 ```http
 GET / HTTP/1.1
@@ -1031,7 +1031,7 @@ X-Forwarded-Host: attacker.com
 ```
 Server reflects `X-Forwarded-Host` into response → CDN caches it for all users → every visitor receives content pointing to `attacker.com`.
 
-**Cache deception:** `GET /profile/secret.css` — CDN caches private profile page because it looks like a static asset.
+**Cache deception:** `GET /profile/secret.css` - CDN caches private profile page because it looks like a static asset.
 
 </div>
 <div>
@@ -1049,7 +1049,7 @@ Cache-Control: no-store, private
 Vary: Accept-Language, Accept-Encoding
 ```
 
-- Audit CDN cache rules — block caching on auth paths
+- Audit CDN cache rules - block caching on auth paths
 - Never reflect request headers into response HTML unvalidated
 - Enable `X-Cache-Status` in staging to surface poisonable paths
 - Use path-based cache rules, not extension-based
@@ -1063,28 +1063,28 @@ layout: section
 
 # 🟣 HTTP Security Headers & Browser Policies
 > *"Defense in depth means never relying on a single line of defense."*
-> — NIST Security Principle
+> - NIST Security Principle
 
 ---
 
-# 28 — Content Security Policy (CSP)
+# 28 - Content Security Policy (CSP)
 
-**Whitelist trusted sources for scripts, styles, and media — the most powerful XSS defense.**
+**Whitelist trusted sources for scripts, styles, and media - the most powerful XSS defense.**
 
 <div class="grid grid-cols-2 gap-6 mt-3">
 <div>
 
 ### Key Directives
 ```
-default-src 'self'          — fallback for all types
-script-src 'self' 'nonce-{n}' — scripts only from origin
+default-src 'self'          - fallback for all types
+script-src 'self' 'nonce-{n}' - scripts only from origin
                                + inlines with matching nonce
 style-src 'self' 'unsafe-inline'
 img-src 'self' data: https:
 connect-src 'self' https://api.example.com
-frame-ancestors 'none'      — prevents clickjacking
-form-action 'self'          — where forms can submit
-upgrade-insecure-requests   — auto-upgrade HTTP→HTTPS
+frame-ancestors 'none'      - prevents clickjacking
+form-action 'self'          - where forms can submit
+upgrade-insecure-requests   - auto-upgrade HTTP→HTTPS
 ```
 
 ### Strict CSP with Nonces (best practice)
@@ -1125,11 +1125,11 @@ app.use(helmet.contentSecurityPolicy({
 </div>
 </div>
 
-<div class="mt-2 text-xs text-gray-400">📄 Deep dive: <code>28-content-security-policy.md</code></div>
+<div class="mt-2 text-xs text-gray-400">📄 Deep dive: <a href="./28-content-security-policy.md" target="_blank" class="text-blue-400 underline decoration-dotted hover:text-blue-300">28-content-security-policy.md</a></div>
 
 ---
 
-# 29–32 — More Security Headers
+# 29–32 - More Security Headers
 
 <div class="grid grid-cols-2 gap-4 text-sm mt-2">
 <div class="space-y-3">
@@ -1188,12 +1188,12 @@ layout: section
 ---
 
 # ⚫ Supply Chain & Dependency Security
-> *"A chain is only as strong as its weakest link — and you didn't write most of your code."*
-> — Supply Chain Security Principle
+> *"A chain is only as strong as its weakest link - and you didn't write most of your code."*
+> - Supply Chain Security Principle
 
 ---
 
-# 33 — Supply Chain Attacks
+# 33 - Supply Chain Attacks
 
 **Attackers compromise widely-used npm packages, injecting malicious code into millions of apps.**
 
@@ -1222,7 +1222,7 @@ layout: section
 npm audit
 npm audit fix
 
-# ✅ Use lock files — commit them!
+# ✅ Use lock files - commit them!
 # package-lock.json / yarn.lock / pnpm-lock.yaml
 
 # ✅ Pin exact versions for critical deps
@@ -1244,11 +1244,11 @@ npm config set ignore-scripts true
 </div>
 </div>
 
-<div class="mt-2 text-xs text-gray-400">📄 Deep dive: <code>33-supply-chain-attacks.md</code> · <code>35-vulnerable-outdated-components.md</code></div>
+<div class="mt-2 text-xs text-gray-400">📄 Deep dive: <a href="./33-supply-chain-attacks.md" target="_blank" class="text-blue-400 underline decoration-dotted hover:text-blue-300">33-supply-chain-attacks.md</a> · <a href="./35-vulnerable-outdated-components.md" target="_blank" class="text-blue-400 underline decoration-dotted hover:text-blue-300">35-vulnerable-outdated-components.md</a></div>
 
 ---
 
-# 34 — Subresource Integrity (SRI)
+# 34 - Subresource Integrity (SRI)
 
 **Browser verifies CDN-loaded resources haven't been tampered with via cryptographic hashes.**
 
@@ -1301,11 +1301,11 @@ Content-Security-Policy:
 </div>
 </div>
 
-<div class="mt-2 text-xs text-gray-400">📄 Deep dive: <code>34-subresource-integrity.md</code></div>
+<div class="mt-2 text-xs text-gray-400">📄 Deep dive: <a href="./34-subresource-integrity.md" target="_blank" class="text-blue-400 underline decoration-dotted hover:text-blue-300">34-subresource-integrity.md</a></div>
 
 ---
 
-# 35 & 36 — Outdated Components & Third-Party Scripts
+# 35 & 36 - Outdated Components & Third-Party Scripts
 
 <div class="grid grid-cols-2 gap-4 text-sm mt-3">
 <div class="space-y-3">
@@ -1330,21 +1330,21 @@ npm outdated
 
 - Enable **Dependabot** or **Renovate** for automated PRs
 - Pin exact versions for critical security packages
-- Check transitive deps — your `node_modules` tree matters
-- Integrate `npm audit` into CI/CD — fail builds on high severity
+- Check transitive deps - your `node_modules` tree matters
+- Integrate `npm audit` into CI/CD - fail builds on high severity
 
 </div>
 <div class="space-y-3">
 
 **36 · Third-Party Script Security**
 
-Analytics tags, chat widgets, and ad scripts run with full page privilege — **one compromised vendor = XSS on your site**.
+Analytics tags, chat widgets, and ad scripts run with full page privilege - **one compromised vendor = XSS on your site**.
 
 ```html
 <!-- ❌ Unlimited trust to third-party -->
 <script src="https://analytics.vendor.com/track.js"></script>
 
-<!-- ✅ SRI hash — blocks tampered versions -->
+<!-- ✅ SRI hash - blocks tampered versions -->
 <script
   src="https://analytics.vendor.com/track.js"
   integrity="sha384-abc123..."
@@ -1364,7 +1364,7 @@ Restrict via CSP: `script-src 'self' https://analytics.vendor.com`
 </div>
 </div>
 
-<div class="mt-2 text-xs text-gray-400">📄 Deep dive: <code>35-vulnerable-outdated-components.md</code> · <code>36-third-party-scripts.md</code></div>
+<div class="mt-2 text-xs text-gray-400">📄 Deep dive: <a href="./35-vulnerable-outdated-components.md" target="_blank" class="text-blue-400 underline decoration-dotted hover:text-blue-300">35-vulnerable-outdated-components.md</a> · <a href="./36-third-party-scripts.md" target="_blank" class="text-blue-400 underline decoration-dotted hover:text-blue-300">36-third-party-scripts.md</a></div>
 
 ---
 layout: section
@@ -1372,11 +1372,11 @@ layout: section
 
 # 🔶 API & Backend Communication Security
 > *"Never trust the client. Never trust the network. Validate everything server-side."*
-> — API Security Best Practice
+> - API Security Best Practice
 
 ---
 
-# 37 — API Security & Rate Limiting
+# 37 - API Security & Rate Limiting
 
 **APIs without rate limiting are vulnerable to brute force, credential stuffing, and DoS.**
 
@@ -1384,17 +1384,17 @@ layout: section
 <div>
 
 ### Attack Types Without Rate Limiting
-- **Brute Force** — try all passwords
-- **Credential Stuffing** — breach data + known passwords
-- **OTP Enumeration** — try all 6-digit codes
-- **Scraping** — mass data extraction
-- **DoS** — overwhelm with requests
+- **Brute Force** - try all passwords
+- **Credential Stuffing** - breach data + known passwords
+- **OTP Enumeration** - try all 6-digit codes
+- **Scraping** - mass data extraction
+- **DoS** - overwhelm with requests
 
 ### Rate Limit Strategies
-- **Fixed Window** — 100 req per 15 min
-- **Sliding Window** — smoothed over time
-- **Token Bucket** — burst-friendly
-- **Leaky Bucket** — constant rate output
+- **Fixed Window** - 100 req per 15 min
+- **Sliding Window** - smoothed over time
+- **Token Bucket** - burst-friendly
+- **Leaky Bucket** - constant rate output
 
 </div>
 <div>
@@ -1432,19 +1432,19 @@ const schema = z.object({
 </div>
 </div>
 
-<div class="mt-2 text-xs text-gray-400">📄 Deep dive: <code>37-api-security-rate-limiting.md</code></div>
+<div class="mt-2 text-xs text-gray-400">📄 Deep dive: <a href="./37-api-security-rate-limiting.md" target="_blank" class="text-blue-400 underline decoration-dotted hover:text-blue-300">37-api-security-rate-limiting.md</a></div>
 
 ---
 
-# 38–42 — Backend Security Concepts
+# 38–42 - Backend Security Concepts
 
 <div class="grid grid-cols-2 gap-4 text-sm mt-2">
 <div class="space-y-2">
 
 **38 · Cryptographic Failures (OWASP A02)**
 - Always use `bcrypt`/`Argon2` for passwords (NOT MD5/SHA1)
-- Store secrets in env vars / vaults — never in code
-- Enforce HTTPS — never transmit sensitive data over HTTP
+- Store secrets in env vars / vaults - never in code
+- Enforce HTTPS - never transmit sensitive data over HTTP
 - Use AES-256-GCM for data at rest encryption
 - Never log tokens, passwords, or PII
 
@@ -1461,7 +1461,7 @@ const schema = z.object({
 
 **40 · Software & Data Integrity (OWASP A08)**
 - Verify update signatures before applying
-- Protect CI/CD pipeline — use pinned action versions
+- Protect CI/CD pipeline - use pinned action versions
 - Use lock files and dependency provenance
 
 **41 · Insecure Deserialization**
@@ -1469,7 +1469,7 @@ const schema = z.object({
 // ❌ NEVER eval user-provided JSON
 eval('(' + userInput + ')');
 
-// ✅ Always use JSON.parse — it's safe
+// ✅ Always use JSON.parse - it's safe
 const data = JSON.parse(userInput);
 
 // ✅ Validate schema after parsing
@@ -1494,12 +1494,12 @@ layout: section
 ---
 
 # 🔷 Availability & Monitoring
-> *"The question is not if you will be attacked, but when — and whether you'll know."*
-> — Security Operations Principle
+> *"The question is not if you will be attacked, but when - and whether you'll know."*
+> - Security Operations Principle
 
 ---
 
-# 43–45 — Availability & Design
+# 43–45 - Availability & Design
 
 <div class="grid grid-cols-2 gap-4 text-sm mt-2">
 <div class="space-y-3">
@@ -1536,7 +1536,7 @@ Use structured logging: Winston / Pino → centralized ELK / Datadog
 
 **45 · Insecure Design (OWASP A04)**
 
-Design flaws can't be fixed with patches — must be addressed at architecture level.
+Design flaws can't be fixed with patches - must be addressed at architecture level.
 
 **STRIDE Threat Model**
 
@@ -1550,10 +1550,10 @@ Design flaws can't be fixed with patches — must be addressed at architecture l
 | **E**levation of Privilege | IDOR to admin data |
 
 **Secure Design Principles**
-- Least Privilege — minimum permissions needed
-- Defense in Depth — multiple security layers
-- Fail Secure — errors → denied, not open
-- Separation of Concerns — compartmentalize trust
+- Least Privilege - minimum permissions needed
+- Defense in Depth - multiple security layers
+- Fail Secure - errors → denied, not open
+- Separation of Concerns - compartmentalize trust
 
 </div>
 </div>
@@ -1562,7 +1562,7 @@ Design flaws can't be fixed with patches — must be addressed at architecture l
 layout: default
 ---
 
-# 📋 OWASP Top 10:2021 — Quick Reference
+# 📋 OWASP Top 10:2021 - Quick Reference
 
 <div class="grid grid-cols-2 gap-4 mt-4 text-sm">
 <div>
@@ -1591,7 +1591,7 @@ layout: default
 
 <div class="mt-6 bg-gray-800 rounded p-4 text-sm">
 
-**🛡️ Essential npm packages for Express security:**
+**Essential npm packages for Express security:**
 ```bash
 npm install helmet cors express-rate-limit csurf bcryptjs jsonwebtoken zod joi dompurify mongo-sanitize
 ```
@@ -1602,7 +1602,7 @@ npm install helmet cors express-rate-limit csurf bcryptjs jsonwebtoken zod joi d
 layout: default
 ---
 
-# ✅ Security Checklist — Ship Confidently
+# ✅ Security Checklist - Ship Confidently
 
 <div class="grid grid-cols-3 gap-4 mt-4 text-xs">
 <div class="bg-gray-800 rounded p-3">
@@ -1643,7 +1643,7 @@ layout: default
 - [ ] npm audit in CI/CD pipeline
 - [ ] Dependabot or Renovate enabled
 - [ ] No secrets in source control (.env in .gitignore)
-- [ ] Structured logging — no PII in logs
+- [ ] Structured logging - no PII in logs
 - [ ] Error pages don't leak stack traces
 - [ ] Threat model before each major feature
 
@@ -1655,16 +1655,16 @@ layout: center
 class: text-center
 ---
 
-# 🔐 Stay Curious. Stay Secure.
+# Stay Curious. Stay Secure.
 
 <div class="mt-6 text-gray-300">
-  45 concepts covered — each with its own deep-dive markdown file.
+  45 concepts covered - each with its own deep-dive markdown file.
 </div>
 
 <div class="grid grid-cols-3 gap-6 mt-8 text-sm text-left">
 <div>
 
-**📚 Research Further**
+**Research Further**
 - [OWASP Top 10](https://owasp.org/www-project-top-ten/)
 - [PortSwigger Web Security Academy](https://portswigger.net/web-security)
 - [MDN Web Security](https://developer.mozilla.org/en-US/docs/Web/Security)
@@ -1672,16 +1672,16 @@ class: text-center
 </div>
 <div>
 
-**🛠️ Tooling**
-- [Snyk](https://snyk.io) — dependency scanning
-- [Socket.dev](https://socket.dev) — supply chain
-- [Helmet.js](https://helmetjs.github.io) — security headers
-- [DOMPurify](https://github.com/cure53/DOMPurify) — XSS sanitization
+**Tooling**
+- [Snyk](https://snyk.io) - dependency scanning
+- [Socket.dev](https://socket.dev) - supply chain
+- [Helmet.js](https://helmetjs.github.io) - security headers
+- [DOMPurify](https://github.com/cure53/DOMPurify) - XSS sanitization
 
 </div>
 <div>
 
-**📖 Standards**
+**Standards**
 - OWASP ASVS (Verification Standard)
 - NIST SP 800-63 (Auth Guidelines)
 - RFC 7519 (JWT)

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JavaScript & Frontend Security — 45 Concepts</title>
+  <title>JavaScript & Frontend Security - 47 Concepts</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/night.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/monokai.css">
@@ -363,8 +363,8 @@
 
       <!-- SECTION 1: Title Slide -->
       <section class="title-slide">
-        <h1>🔐 JavaScript & Frontend Security</h1>
-        <p class="subtitle">A Complete Developer Reference — 45 Concepts Across 9 Categories</p>
+        <h1>JavaScript & Frontend Security</h1>
+        <p class="subtitle">A Complete Developer Reference - 47 Concepts Across 9 Categories</p>
         <div class="tags-row">
           <span class="tag">OWASP Top 10</span>
           <span class="tag">XSS · CSRF · CORS</span>
@@ -372,7 +372,7 @@
           <span class="tag">Supply Chain</span>
           <span class="tag">CSP · HSTS · SRI</span>
         </div>
-        <p class="hint" style="margin-top: 3em;">⬇ Down — dive into category · ➡ Right — next category · Space — advance</p>
+        <p class="hint" style="margin-top: 3em;">⬇ Down - dive into category · ➡ Right - next category · Space - advance</p>
       </section>
 
       <!-- SECTION 2: Overview Map -->
@@ -425,28 +425,28 @@
         <section class="section-intro client-side">
           <div class="section-emoji">🔴</div>
           <h2 class="gradient-title" style="--accent-color: #ff6b6b;">Client-Side Attack Vectors</h2>
-          <blockquote style="border-left-color: #ff6b6b;">"The web browser is the most hostile software development environment imaginable." — Douglas Crockford</blockquote>
+          <blockquote style="border-left-color: #ff6b6b;">"The web browser is the most hostile software development environment imaginable." - Douglas Crockford</blockquote>
           <ul style="margin-top: 2em; font-size: 1.2em;">
-            <li>01 — Cross-Site Scripting (XSS)</li>
-            <li>02 — Clickjacking</li>
-            <li>03 — Prototype Pollution</li>
-            <li>04–08 — DOM Clobbering, eval, Insecure Storage, ReDoS, Open Redirects</li>
-            <li>46 — Micro-Frontend Security</li>
-            <li>48 — Framework Security (React / Vue / Angular)</li>
+            <li>01 - Cross-Site Scripting (XSS)</li>
+            <li>02 - Clickjacking</li>
+            <li>03 - Prototype Pollution</li>
+            <li>04–08 - DOM Clobbering, eval, Insecure Storage, ReDoS, Open Redirects</li>
+            <li>46 - Micro-Frontend Security</li>
+            <li>48 - Framework Security (React / Vue / Angular)</li>
           </ul>
           <p class="hint">⬇ Press down to explore concepts</p>
         </section>
 
         <!-- 3.1: XSS -->
         <section>
-          <h2>01 — Cross-Site Scripting (XSS)</h2>
+          <h2>01 - Cross-Site Scripting (XSS)</h2>
           <div class="two-column">
             <div>
               <h3>Attack Types</h3>
               <ul style="font-size: 1em;">
-                <li class="fragment"><strong>Stored</strong> — Attacker injects into database</li>
-                <li class="fragment"><strong>Reflected</strong> — Attacker tricks user to click malicious link</li>
-                <li class="fragment"><strong>DOM-based</strong> — JavaScript reads untrusted source</li>
+                <li class="fragment"><strong>Stored</strong> - Attacker injects into database</li>
+                <li class="fragment"><strong>Reflected</strong> - Attacker tricks user to click malicious link</li>
+                <li class="fragment"><strong>DOM-based</strong> - JavaScript reads untrusted source</li>
               </ul>
               <h4 style="margin-top: 1.5em;">Attack Goals</h4>
               <ul style="font-size: 0.95em;">
@@ -478,7 +478,7 @@ container.appendChild(p);
 
         <!-- 3.2: Clickjacking -->
         <section>
-          <h2>02 — Clickjacking</h2>
+          <h2>02 - Clickjacking</h2>
           <div class="two-column">
             <div>
               <h3>How It Works</h3>
@@ -517,7 +517,7 @@ helmet.contentSecurityPolicy({
 
         <!-- 3.3: Prototype Pollution -->
         <section>
-          <h2>03 — Prototype Pollution</h2>
+          <h2>03 - Prototype Pollution</h2>
           <div class="two-column">
             <div>
               <h3>Vulnerable Code</h3>
@@ -566,7 +566,7 @@ for (let key in source) {
 
         <!-- 3.4: More Client-Side Threats -->
         <section>
-          <h2>04–08 — More Client-Side Threats</h2>
+          <h2>04–08 - More Client-Side Threats</h2>
           <div class="grid-5">
             <div class="card fragment" style="--accent-color: #ff6b6b;">
               <h4>DOM Clobbering</h4>
@@ -604,14 +604,14 @@ for (let key in source) {
 
         <!-- 3.5: Micro-Frontend Security -->
         <section>
-          <h2>46 — Micro-Frontend (MFE) Security</h2>
+          <h2>46 - Micro-Frontend (MFE) Security</h2>
           <div class="grid-2">
             <div>
-              <h3 style="color:#ff6b6b;">❌ Vulnerable — Trusting Remote Blindly</h3>
-              <pre><code class="language-javascript" data-line-numbers="1-5|7-12">// host app — Module Federation config
+              <h3 style="color:#ff6b6b;">❌ Vulnerable - Trusting Remote Blindly</h3>
+              <pre><code class="language-javascript" data-line-numbers="1-5|7-12">// host app - Module Federation config
 remotes: {
   checkout: 'checkout@https://cdn.partner.com/remoteEntry.js'
-  // ❌ No SRI, no origin pinning — partner can push malicious code
+  // ❌ No SRI, no origin pinning - partner can push malicious code
 }
 
 // Remote has full access to host DOM and shared state
@@ -627,7 +627,7 @@ remotes: {
     loadRemote('checkout', knownHash, res, rej);
   })`
 }
-// ✅ Scope shared state — never pass raw tokens to remotes
+// ✅ Scope shared state - never pass raw tokens to remotes
 const { cartId } = useSharedStore(); // share only non-sensitive data
 // ✅ Sandbox untrusted remotes in iframe + postMessage
 // ✅ CSP per remote origin
@@ -638,33 +638,33 @@ const { cartId } = useSharedStore(); // share only non-sensitive data
 
         <!-- 3.6: Framework Security -->
         <section>
-          <h2>48 — Framework Security (React / Vue / Angular)</h2>
+          <h2>48 - Framework Security (React / Vue / Angular)</h2>
           <div class="grid-2">
             <div>
               <h3 style="color:#ff6b6b;">❌ Framework XSS Pitfalls</h3>
-              <pre><code class="language-jsx" data-line-numbers="1-3|5-7|9-11">// ❌ React — raw HTML injection
+              <pre><code class="language-jsx" data-line-numbers="1-3|5-7|9-11">// ❌ React - raw HTML injection
 &lt;div dangerouslySetInnerHTML={{ __html: userBio }} /&gt;
 
-// ❌ Vue — v-html with user content
+// ❌ Vue - v-html with user content
 &lt;div v-html="userComment"&gt;&lt;/div&gt;
 
-// ❌ Angular — bypassing sanitizer
+// ❌ Angular - bypassing sanitizer
 this.safeHtml = this.sanitizer
   .bypassSecurityTrustHtml(userInput);</code></pre>
             </div>
             <div>
               <h3 style="color:#2ecc71;">✅ Safe Patterns</h3>
-              <pre><code class="language-jsx" data-line-numbers="1-5|7-9|11-15">// ✅ React — sanitise before injecting
+              <pre><code class="language-jsx" data-line-numbers="1-5|7-9|11-15">// ✅ React - sanitise before injecting
 import DOMPurify from 'dompurify';
 &lt;div dangerouslySetInnerHTML={{
   __html: DOMPurify.sanitize(userBio)
 }} /&gt;
-// ✅ Vue — use text binding unless HTML is trusted
+// ✅ Vue - use text binding unless HTML is trusted
 &lt;p&gt;{{ userComment }}&lt;/p&gt;
 
-// ✅ Angular — sanitizer is safe by default; never bypass
+// ✅ Angular - sanitizer is safe by default; never bypass
 // ✅ SSR (Next.js/Nuxt): never interpolate user data into
-//    getServerSideProps HTML strings — use JSON.stringify
+//    getServerSideProps HTML strings - use JSON.stringify
 //    and pass through props, not raw HTML</code></pre>
             </div>
           </div>
@@ -679,17 +679,17 @@ import DOMPurify from 'dompurify';
         <section class="section-intro injection">
           <div class="section-emoji">🟠</div>
           <h2 class="gradient-title" style="--accent-color: #ffa500;">Injection Attacks</h2>
-          <blockquote style="border-left-color: #ffa500;">"All input is evil until proven otherwise." — Michael Howard, Writing Secure Code</blockquote>
+          <blockquote style="border-left-color: #ffa500;">"All input is evil until proven otherwise." - Michael Howard, Writing Secure Code</blockquote>
           <ul style="margin-top: 2em; font-size: 1.2em;">
-            <li>09 — SQL Injection</li>
-            <li>10–11, 13 — NoSQL, Command, Template/SSTI</li>
+            <li>09 - SQL Injection</li>
+            <li>10–11, 13 - NoSQL, Command, Template/SSTI</li>
           </ul>
           <p class="hint">⬇ Press down to explore concepts</p>
         </section>
 
         <!-- 4.1: SQL Injection -->
         <section>
-          <h2>09 — SQL Injection</h2>
+          <h2>09 - SQL Injection</h2>
           <div class="two-column">
             <div>
               <h3>Vulnerable Pattern</h3>
@@ -728,7 +728,7 @@ const user = await prisma.user.findUnique({
 
         <!-- 4.2: More Injection Types -->
         <section>
-          <h2>10–13 — More Injection Types</h2>
+          <h2>10–13 - More Injection Types</h2>
           <div class="grid-2">
             <div class="card fragment" style="--accent-color: #ffa500;">
               <h4>NoSQL Injection</h4>
@@ -772,16 +772,16 @@ template.compile(userTemplate);
           <h2 class="gradient-title" style="--accent-color: #ffd700;">Cross-Origin & Request Forgery</h2>
           <blockquote style="border-left-color: #ffd700;">"Security is only as strong as the weakest trust relationship."</blockquote>
           <ul style="margin-top: 2em; font-size: 1.2em;">
-            <li>14 — CSRF (Cross-Site Request Forgery)</li>
-            <li>15 — CORS Misconfiguration</li>
-            <li>16 — SSRF (Server-Side Request Forgery)</li>
+            <li>14 - CSRF (Cross-Site Request Forgery)</li>
+            <li>15 - CORS Misconfiguration</li>
+            <li>16 - SSRF (Server-Side Request Forgery)</li>
           </ul>
           <p class="hint">⬇ Press down to explore concepts</p>
         </section>
 
         <!-- 5.1: CSRF -->
         <section>
-          <h2>14 — CSRF (Cross-Site Request Forgery)</h2>
+          <h2>14 - CSRF (Cross-Site Request Forgery)</h2>
           <div class="two-column">
             <div>
               <h3>Attack Example</h3>
@@ -823,7 +823,7 @@ if (req.headers.origin !== 'https://bank.com') {
 
         <!-- 5.2: CORS Misconfiguration -->
         <section>
-          <h2>15 — CORS Misconfiguration</h2>
+          <h2>15 - CORS Misconfiguration</h2>
           <div class="two-column">
             <div>
               <h3>Dangerous Patterns</h3>
@@ -874,7 +874,7 @@ app.use(cors({
 
         <!-- 5.3: SSRF -->
         <section>
-          <h2>16 — SSRF (Server-Side Request Forgery)</h2>
+          <h2>16 - SSRF (Server-Side Request Forgery)</h2>
           <div class="two-column">
             <div>
               <h3>High-Value SSRF Targets</h3>
@@ -927,19 +927,19 @@ if (addr[0].startsWith('127.') ||
         <section class="section-intro auth">
           <div class="section-emoji">🟢</div>
           <h2 class="gradient-title" style="--accent-color: #56d364;">Authentication & Authorization</h2>
-          <blockquote style="border-left-color: #56d364;">"Attackers don't break in — they log in." — CrowdStrike</blockquote>
+          <blockquote style="border-left-color: #56d364;">"Attackers don't break in - they log in." - CrowdStrike</blockquote>
           <ul style="margin-top: 2em; font-size: 1.2em;">
-            <li>17 — Broken Access Control (OWASP #1)</li>
-            <li>18 — Authentication Failures</li>
-            <li>19 — JWT Security</li>
-            <li>20–22 — OAuth, Sessions & IDOR</li>
+            <li>17 - Broken Access Control (OWASP #1)</li>
+            <li>18 - Authentication Failures</li>
+            <li>19 - JWT Security</li>
+            <li>20–22 - OAuth, Sessions & IDOR</li>
           </ul>
           <p class="hint">⬇ Press down to explore concepts</p>
         </section>
 
         <!-- 6.1: Broken Access Control -->
         <section>
-          <h2>17 — Broken Access Control (OWASP #1)</h2>
+          <h2>17 - Broken Access Control (OWASP #1)</h2>
           <div class="two-column">
             <div>
               <h3>Common Failures</h3>
@@ -983,7 +983,7 @@ app.get('/admin', requireRole(['admin']), handler);
 
         <!-- 6.2: Authentication Failures -->
         <section>
-          <h2>18 — Authentication Failures</h2>
+          <h2>18 - Authentication Failures</h2>
           <div class="two-column">
             <div>
               <h3>What Goes Wrong</h3>
@@ -1026,7 +1026,7 @@ const pwnedPassword =
 
         <!-- 6.3: JWT Security -->
         <section>
-          <h2>19 — JWT Security</h2>
+          <h2>19 - JWT Security</h2>
           <div class="two-column">
             <div>
               <h3>Dangerous Patterns</h3>
@@ -1082,7 +1082,7 @@ res.cookie('jwt', token, {
 
         <!-- 6.4: OAuth, Sessions & IDOR -->
         <section>
-          <h2>20–22 — OAuth, Sessions & IDOR</h2>
+          <h2>20–22 - OAuth, Sessions & IDOR</h2>
           <div class="two-column">
             <div>
               <h3>OAuth PKCE Checklist</h3>
@@ -1147,21 +1147,21 @@ req.session.destroy();
         <section class="section-intro transport">
           <div class="section-emoji">🔵</div>
           <h2 class="gradient-title" style="--accent-color: #58a6ff;">Transport & Network Security</h2>
-          <blockquote style="border-left-color: #58a6ff;">"Privacy is not an option, and it shouldn't be the price we accept for just getting on the internet." — Gary Kovacs</blockquote>
+          <blockquote style="border-left-color: #58a6ff;">"Privacy is not an option, and it shouldn't be the price we accept for just getting on the internet." - Gary Kovacs</blockquote>
           <ul style="margin-top: 2em; font-size: 1.2em;">
-            <li>23 — HTTPS & TLS</li>
-            <li>24 — HSTS</li>
-            <li>25 — Man-in-the-Middle</li>
-            <li>27 — WebSocket Security</li>
-            <li>47 — Web Crypto API</li>
-            <li>49 — Web Cache Poisoning</li>
+            <li>23 - HTTPS & TLS</li>
+            <li>24 - HSTS</li>
+            <li>25 - Man-in-the-Middle</li>
+            <li>27 - WebSocket Security</li>
+            <li>47 - Web Crypto API</li>
+            <li>49 - Web Cache Poisoning</li>
           </ul>
           <p class="hint">⬇ Press down to explore concepts</p>
         </section>
 
         <!-- 7.1: Transport Security (Cards) -->
         <section>
-          <h2>23–25, 27 — Transport Security Concepts</h2>
+          <h2>23–25, 27 - Transport Security Concepts</h2>
           <div class="grid-4">
             <div class="card fragment" style="--accent-color: #58a6ff;">
               <h4>HTTPS & TLS</h4>
@@ -1192,7 +1192,7 @@ req.session.destroy();
 
         <!-- 7.2: Web Crypto API -->
         <section>
-          <h2>47 — Client-Side Cryptography & Web Crypto API</h2>
+          <h2>47 - Client-Side Cryptography & Web Crypto API</h2>
           <div class="grid-2">
             <div>
               <h3 style="color:#ff6b6b;">❌ Common Mistakes</h3>
@@ -1202,9 +1202,9 @@ const key = Math.random().toString(36);
 // ❌ Storing keys in localStorage
 localStorage.setItem('encKey', exportedKey);
 
-// ❌ ECB mode — leaks patterns
+// ❌ ECB mode - leaks patterns
 { name: 'AES-CBC', iv: sameIvEveryTime }
-// ❌ Weak PBKDF2 — too few iterations
+// ❌ Weak PBKDF2 - too few iterations
 { name: 'PBKDF2', iterations: 1000 }</code></pre>
             </div>
             <div>
@@ -1229,10 +1229,10 @@ const cipher = await crypto.subtle.encrypt(
 
         <!-- 7.3: Web Cache Poisoning -->
         <section>
-          <h2>49 — Web Cache Poisoning & Cache Deception</h2>
+          <h2>49 - Web Cache Poisoning & Cache Deception</h2>
           <div class="grid-2">
             <div>
-              <h3 style="color:#ff6b6b;">❌ Vulnerable — Unkeyed Header</h3>
+              <h3 style="color:#ff6b6b;">❌ Vulnerable - Unkeyed Header</h3>
               <pre><code class="language-javascript" data-line-numbers="1-5|7-10">// Server reflects X-Forwarded-Host without keying it
 app.get('/', (req, res) => {
   const host = req.headers['x-forwarded-host']
@@ -1250,7 +1250,7 @@ app.get('/', (req, res) => {
                 <li>Add all varying headers to cache key (<code>Vary</code> header)</li>
                 <li>Never reflect request headers into responses unvalidated</li>
                 <li>Use <code>Cache-Control: no-store</code> for authenticated/personalised responses</li>
-                <li>Audit CDN cache rules — block caching of URLs with path suffixes like <code>.css</code> pointing to auth endpoints</li>
+                <li>Audit CDN cache rules - block caching of URLs with path suffixes like <code>.css</code> pointing to auth endpoints</li>
                 <li>Enable <code>X-Cache-Status</code> headers in staging to audit what gets cached</li>
               </ul>
             </div>
@@ -1268,15 +1268,15 @@ app.get('/', (req, res) => {
           <h2 class="gradient-title" style="--accent-color: #a855f7;">HTTP Security Headers</h2>
           <blockquote style="border-left-color: #a855f7;">"Defense in depth: never rely on a single safeguard. Layer your defenses."</blockquote>
           <ul style="margin-top: 2em; font-size: 1.2em;">
-            <li>28 — Content Security Policy (CSP)</li>
-            <li>29–32 — Secure Cookies, Referrer Policy, Permissions Policy, X-Content-Type-Options</li>
+            <li>28 - Content Security Policy (CSP)</li>
+            <li>29–32 - Secure Cookies, Referrer Policy, Permissions Policy, X-Content-Type-Options</li>
           </ul>
           <p class="hint">⬇ Press down to explore concepts</p>
         </section>
 
         <!-- 8.1: CSP -->
         <section>
-          <h2>28 — Content Security Policy (CSP)</h2>
+          <h2>28 - Content Security Policy (CSP)</h2>
           <div class="two-column">
             <div>
               <h3>Key Directives</h3>
@@ -1332,7 +1332,7 @@ app.get('/', (req, res) => {
 
         <!-- 8.2: More Security Headers -->
         <section>
-          <h2>29–32 — More Security Headers</h2>
+          <h2>29–32 - More Security Headers</h2>
           <div class="grid-2">
             <div class="card fragment" style="--accent-color: #a855f7;">
               <h4>Secure Cookies</h4>
@@ -1385,16 +1385,16 @@ app.get('/', (req, res) => {
           <h2 class="gradient-title" style="--accent-color: #8b949e;">Supply Chain & Dependencies</h2>
           <blockquote style="border-left-color: #8b949e;">"You are only as secure as your least secure dependency."</blockquote>
           <ul style="margin-top: 2em; font-size: 1.2em;">
-            <li>33 — Supply Chain Attacks</li>
-            <li>34 — Subresource Integrity (SRI)</li>
-            <li>35 & 36 — Outdated Components & Third-Party Scripts</li>
+            <li>33 - Supply Chain Attacks</li>
+            <li>34 - Subresource Integrity (SRI)</li>
+            <li>35 & 36 - Outdated Components & Third-Party Scripts</li>
           </ul>
           <p class="hint">⬇ Press down to explore concepts</p>
         </section>
 
         <!-- 9.1: Supply Chain Attacks -->
         <section>
-          <h2>33 — Supply Chain Attacks</h2>
+          <h2>33 - Supply Chain Attacks</h2>
           <div class="two-column">
             <div>
               <h3>Incidents Table</h3>
@@ -1450,7 +1450,7 @@ npm config set ignore-scripts true
 
         <!-- 9.2: Subresource Integrity (SRI) -->
         <section>
-          <h2>34 — Subresource Integrity (SRI)</h2>
+          <h2>34 - Subresource Integrity (SRI)</h2>
           <div class="two-column">
             <div>
               <h3>How SRI Works</h3>
@@ -1487,7 +1487,7 @@ Content-Security-Policy:
 
         <!-- 9.3: Outdated & Third-Party Scripts -->
         <section>
-          <h2>35 & 36 — Outdated Components & Third-Party Scripts</h2>
+          <h2>35 & 36 - Outdated Components & Third-Party Scripts</h2>
           <div class="two-column">
             <div>
               <h3>Dependency Management</h3>
@@ -1543,15 +1543,15 @@ npm update    # Update within constraints
           <h2 class="gradient-title" style="--accent-color: #f59e0b;">API & Backend Security</h2>
           <blockquote style="border-left-color: #f59e0b;">"The data you don't validate is the data that will be your undoing."</blockquote>
           <ul style="margin-top: 2em; font-size: 1.2em;">
-            <li>37 — API Security & Rate Limiting</li>
-            <li>38–42 — Crypto Failures, Misconfiguration, Integrity, Deserialization, Mass Assignment</li>
+            <li>37 - API Security & Rate Limiting</li>
+            <li>38–42 - Crypto Failures, Misconfiguration, Integrity, Deserialization, Mass Assignment</li>
           </ul>
           <p class="hint">⬇ Press down to explore concepts</p>
         </section>
 
         <!-- 10.1: API Security & Rate Limiting -->
         <section>
-          <h2>37 — API Security & Rate Limiting</h2>
+          <h2>37 - API Security & Rate Limiting</h2>
           <div class="two-column">
             <div>
               <h3>Attack Types</h3>
@@ -1604,7 +1604,7 @@ app.post('/login', authLimiter, async (req, res) => {
 
         <!-- 10.2: Backend Security Concepts -->
         <section>
-          <h2>38–42 — Backend Security Concepts</h2>
+          <h2>38–42 - Backend Security Concepts</h2>
           <div class="grid-5">
             <div class="card fragment" style="--accent-color: #f59e0b;">
               <h4>Crypto Failures</h4>
@@ -1653,18 +1653,18 @@ user.email = email;
         <section class="section-intro availability">
           <div class="section-emoji">🔷</div>
           <h2 class="gradient-title" style="--accent-color: #22d3ee;">Availability & Monitoring</h2>
-          <blockquote style="border-left-color: #22d3ee;">"If you're not monitoring it, you don't own it — your attacker does."</blockquote>
+          <blockquote style="border-left-color: #22d3ee;">"If you're not monitoring it, you don't own it - your attacker does."</blockquote>
           <ul style="margin-top: 2em; font-size: 1.2em;">
-            <li>43 — DoS & Rate Limiting</li>
-            <li>44 — Logging & Auditing</li>
-            <li>45 — Insecure Design & STRIDE</li>
+            <li>43 - DoS & Rate Limiting</li>
+            <li>44 - Logging & Auditing</li>
+            <li>45 - Insecure Design & STRIDE</li>
           </ul>
           <p class="hint">⬇ Press down to explore concepts</p>
         </section>
 
         <!-- 11.1: Availability & Design -->
         <section>
-          <h2>43–45 — Availability & Design</h2>
+          <h2>43–45 - Availability & Design</h2>
           <div class="two-column">
             <div>
               <h3>DoS Prevention</h3>
@@ -1814,14 +1814,14 @@ npm install npm-audit
           <div class="section-emoji">📚</div>
           <h2 class="gradient-title" style="--accent-color: #a78bfa;">Reference Library</h2>
           <blockquote style="border-left-color: #a78bfa; max-width: 680px; margin: 1.2rem auto;">
-            <em>"Knowledge is the best security tool you own — and it's free."</em>
+            <em>"Knowledge is the best security tool you own - and it's free."</em>
           </blockquote>
           <div style="display: flex; gap: 1.5rem; justify-content: center; margin-top: 2rem; flex-wrap: wrap;">
             <a href="README.md" target="_blank" style="display:flex; align-items:center; gap:0.5rem; background:rgba(167,139,250,0.15); border:1px solid #a78bfa; border-radius:8px; padding:0.7rem 1.2rem; color:#a78bfa; text-decoration:none; font-size:0.95em;">
-              📋 README.md <span style="opacity:0.6; font-size:0.8em;">— All 45 concepts overview</span>
+              📋 README.md <span style="opacity:0.6; font-size:0.8em;">- All 45 concepts overview</span>
             </a>
             <a href="AGENT.md" target="_blank" style="display:flex; align-items:center; gap:0.5rem; background:rgba(52,211,153,0.15); border:1px solid #34d399; border-radius:8px; padding:0.7rem 1.2rem; color:#34d399; text-decoration:none; font-size:0.95em;">
-              🤖 AGENT.md <span style="opacity:0.6; font-size:0.8em;">— Automated audit runbook</span>
+              🤖 AGENT.md <span style="opacity:0.6; font-size:0.8em;">- Automated audit runbook</span>
             </a>
           </div>
           <p class="hint" style="margin-top:2.5rem;">⬇ Press down to browse by category</p>
@@ -1831,13 +1831,13 @@ npm install npm-audit
         <section>
           <h3 style="color:#ff6b6b; margin-bottom:1rem;">🔴 Client-Side Attack Vectors</h3>
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem 2.5rem; font-size:0.82em; text-align:left; max-width:820px; margin:0 auto;">
-            <a href="01-xss-cross-site-scripting.md" target="_blank" class="ref-link">01 · XSS — Cross-Site Scripting</a>
+            <a href="01-xss-cross-site-scripting.md" target="_blank" class="ref-link">01 · XSS - Cross-Site Scripting</a>
             <a href="02-clickjacking.md" target="_blank" class="ref-link">02 · Clickjacking</a>
             <a href="03-prototype-pollution.md" target="_blank" class="ref-link">03 · Prototype Pollution</a>
             <a href="04-dom-clobbering.md" target="_blank" class="ref-link">04 · DOM Clobbering</a>
             <a href="05-eval-dynamic-code-execution.md" target="_blank" class="ref-link">05 · eval() &amp; Dynamic Code Execution</a>
             <a href="06-insecure-data-storage.md" target="_blank" class="ref-link">06 · Insecure Data Storage</a>
-            <a href="07-redos.md" target="_blank" class="ref-link">07 · ReDoS — Regex Denial of Service</a>
+            <a href="07-redos.md" target="_blank" class="ref-link">07 · ReDoS - Regex Denial of Service</a>
             <a href="08-open-redirects.md" target="_blank" class="ref-link">08 · Open Redirects</a>
             <a href="46-microfrontend-security.md" target="_blank" class="ref-link">46 · Micro-Frontend (MFE) Security</a>
             <a href="48-framework-security.md" target="_blank" class="ref-link">48 · Framework Security (React / Vue / Angular)</a>
@@ -1859,9 +1859,9 @@ npm install npm-audit
         <section>
           <h3 style="color:#ffd32a; margin-bottom:1rem;">🟡 Cross-Origin &amp; Request Forgery</h3>
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem 2.5rem; font-size:0.82em; text-align:left; max-width:820px; margin:0 auto;">
-            <a href="14-csrf.md" target="_blank" class="ref-link">14 · CSRF — Cross-Site Request Forgery</a>
+            <a href="14-csrf.md" target="_blank" class="ref-link">14 · CSRF - Cross-Site Request Forgery</a>
             <a href="15-cors.md" target="_blank" class="ref-link">15 · CORS Misconfiguration</a>
-            <a href="16-ssrf.md" target="_blank" class="ref-link">16 · SSRF — Server-Side Request Forgery</a>
+            <a href="16-ssrf.md" target="_blank" class="ref-link">16 · SSRF - Server-Side Request Forgery</a>
           </div>
         </section>
 
@@ -1874,7 +1874,7 @@ npm install npm-audit
             <a href="19-jwt-security.md" target="_blank" class="ref-link">19 · JWT Security</a>
             <a href="20-oauth-oidc-security.md" target="_blank" class="ref-link">20 · OAuth 2.0 / OIDC Vulnerabilities</a>
             <a href="21-session-management.md" target="_blank" class="ref-link">21 · Session Management</a>
-            <a href="22-idor.md" target="_blank" class="ref-link">22 · IDOR — Insecure Direct Object Reference</a>
+            <a href="22-idor.md" target="_blank" class="ref-link">22 · IDOR - Insecure Direct Object Reference</a>
           </div>
         </section>
 
@@ -1883,7 +1883,7 @@ npm install npm-audit
           <h3 style="color:#54a0ff; margin-bottom:1rem;">🔵 Transport &amp; Network Security</h3>
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem 2.5rem; font-size:0.82em; text-align:left; max-width:820px; margin:0 auto;">
             <a href="23-https-tls.md" target="_blank" class="ref-link">23 · HTTPS / TLS</a>
-            <a href="24-hsts.md" target="_blank" class="ref-link">24 · HSTS — HTTP Strict Transport Security</a>
+            <a href="24-hsts.md" target="_blank" class="ref-link">24 · HSTS - HTTP Strict Transport Security</a>
             <a href="25-man-in-the-middle.md" target="_blank" class="ref-link">25 · Man-in-the-Middle Attacks</a>
             <a href="27-websocket-security.md" target="_blank" class="ref-link">27 · WebSocket Security</a>
             <a href="47-web-crypto-api.md" target="_blank" class="ref-link">47 · Client-Side Cryptography &amp; Web Crypto API</a>
@@ -1936,8 +1936,8 @@ npm install npm-audit
             <a href="45-insecure-design.md" target="_blank" class="ref-link">45 · Insecure Design</a>
           </div>
           <div style="margin-top:2rem; display:flex; gap:1.5rem; justify-content:center;">
-            <a href="README.md" target="_blank" style="color:#a78bfa; font-size:0.82em; opacity:0.8;">📋 README.md — Full overview</a>
-            <a href="AGENT.md" target="_blank" style="color:#34d399; font-size:0.82em; opacity:0.8;">🤖 AGENT.md — Audit runbook</a>
+            <a href="README.md" target="_blank" style="color:#a78bfa; font-size:0.82em; opacity:0.8;">📋 README.md - Full overview</a>
+            <a href="AGENT.md" target="_blank" style="color:#34d399; font-size:0.82em; opacity:0.8;">🤖 AGENT.md - Audit runbook</a>
           </div>
         </section>
 
@@ -1945,7 +1945,7 @@ npm install npm-audit
 
       <!-- SECTION 15: Closing Slide -->
       <section class="close-slide">
-        <h1>🔐 Stay Curious. Stay Secure.</h1>
+        <h1>Stay Curious. Stay Secure.</h1>
         <div class="grid-3">
           <div>
             <h3>Research Further</h3>
@@ -1959,19 +1959,19 @@ npm install npm-audit
           <div>
             <h3>Security Tools</h3>
             <ul style="font-size: 0.95em;">
-              <li><a href="https://snyk.io" target="_blank">Snyk</a> — Dependency scanning</li>
-              <li><a href="https://socket.dev" target="_blank">Socket.dev</a> — Supply chain</li>
-              <li><a href="https://helmetjs.github.io" target="_blank">Helmet.js</a> — Headers</li>
-              <li><a href="https://github.com/cure53/DOMPurify" target="_blank">DOMPurify</a> — XSS prevention</li>
+              <li><a href="https://snyk.io" target="_blank">Snyk</a> - Dependency scanning</li>
+              <li><a href="https://socket.dev" target="_blank">Socket.dev</a> - Supply chain</li>
+              <li><a href="https://helmetjs.github.io" target="_blank">Helmet.js</a> - Headers</li>
+              <li><a href="https://github.com/cure53/DOMPurify" target="_blank">DOMPurify</a> - XSS prevention</li>
             </ul>
           </div>
           <div>
             <h3>Standards & RFCs</h3>
             <ul style="font-size: 0.95em;">
-              <li><a href="https://github.com/OWASP/ASVS" target="_blank">OWASP ASVS</a> — Verification</li>
-              <li><a href="https://pages.nist.gov/800-63-3/" target="_blank">NIST 800-63</a> — Digital identity</li>
-              <li><a href="https://tools.ietf.org/html/rfc7519" target="_blank">RFC 7519</a> — JWT</li>
-              <li><a href="https://tools.ietf.org/html/rfc6749" target="_blank">RFC 6749</a> — OAuth 2.0</li>
+              <li><a href="https://github.com/OWASP/ASVS" target="_blank">OWASP ASVS</a> - Verification</li>
+              <li><a href="https://pages.nist.gov/800-63-3/" target="_blank">NIST 800-63</a> - Digital identity</li>
+              <li><a href="https://tools.ietf.org/html/rfc7519" target="_blank">RFC 7519</a> - JWT</li>
+              <li><a href="https://tools.ietf.org/html/rfc6749" target="_blank">RFC 6749</a> - OAuth 2.0</li>
             </ul>
           </div>
         </div>
