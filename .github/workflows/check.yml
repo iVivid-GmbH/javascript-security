@@ -110,30 +110,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Verify CDN resources have integrity attributes
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate SRI hashes for CDN resources
         run: |
-          python3 << 'PYEOF'
-          import re, sys
+          # Fetch each CDN resource and patch integrity= attributes into slides.html
+          node scripts/add-sri.js
+          echo "✅ SRI hashes generated and applied."
 
-          html = open("slides.html").read()
-          # Find CDN links/scripts
-          cdn_tags = re.findall(r'<(?:link|script)\b[^>]*(https://cdn\.[^"]+)"[^>]*>', html)
-          missing_sri = []
-          for url in cdn_tags:
-              # Check that the tag containing this URL also has integrity=
-              tag_pattern = re.compile(
-                  r'<(?:link|script)\b[^>]*' + re.escape(url) + r'"[^>]*>')
-              for tag in tag_pattern.findall(html):
-                  if 'integrity=' not in tag:
-                      missing_sri.append(url)
-
-          if missing_sri:
-              print(f"⚠️  {len(missing_sri)} CDN resource(s) missing SRI integrity attribute:")
-              for u in missing_sri:
-                  print(f"  - {u}")
-              print("\nRun: node scripts/add-sri.js  to generate and apply hashes.")
-              print("Then commit slides.html and push.")
-              sys.exit(1)
-          else:
-              print("✅ All CDN resources have SRI integrity attributes.")
-          PYEOF
+      - name: Verify all CDN resources now have integrity attributes
+        run: node scripts/add-sri.js --check

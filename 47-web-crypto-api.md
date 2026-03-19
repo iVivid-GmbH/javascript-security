@@ -61,10 +61,12 @@ async function deriveKeyFromPassword(
   return crypto.subtle.importKey(
     'raw',
     derivedBits,
-    { name: 'AES-ECB' }, // Mistake 3: ECB mode (no IV, patterns leak)
+    { name: 'AES-CBC' }, // Mistake 3: CBC with a reused/hardcoded IV leaks patterns
     false,
     ['encrypt', 'decrypt']
   );
+  // Note: AES-ECB is not available in the Web Crypto API at all —
+  // AES-CBC with a fixed IV is the closest equivalent vulnerability.
 }
 
 // Mistake 4: No authentication, stream cipher

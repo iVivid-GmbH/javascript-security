@@ -308,7 +308,7 @@ export class SecureProfileComponent implements OnInit {
 }
 
 // SSR: Template Escaping (Next.js example with proper escaping)
-import { escapeHtml } from 'some-html-escaping-lib';
+import escapeHtml from 'escape-html'; // npm install escape-html
 
 export async function getServerSideProps({ params }: any) {
   const user = await fetch(`/api/users/${params.userId}`).then((r) =>

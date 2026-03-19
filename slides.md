@@ -685,29 +685,22 @@ app.get('/admin', (req, res) => {
 <div>
 
 ```js
-// ✅ Enforce permissions server-side
-// ALWAYS verify signature AND authorization
-
+// ✅ Verify signature + load perms from DB
 const authMiddleware = async (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];
   try {
-    // Verify signature with strong secret
     const payload = jwt.verify(token, process.env.JWT_SECRET);
-    // Look up permissions from DB - don't trust claims
-    const user = await User.findById(payload.sub);
-    req.user = user;
+    req.user = await User.findById(payload.sub); // trust DB, not JWT claims
     next();
   } catch {
     res.status(401).json({ error: 'Unauthorized' });
   }
 };
 
-const requireRole = (role) => (req, res, next) => {
-  if (req.user?.role !== role) {
-    return res.status(403).json({ error: 'Forbidden' });
-  }
-  next();
-};
+// ✅ Role guard — checked after auth
+const requireRole = (role) => (req, res, next) =>
+  req.user?.role === role ? next()
+    : res.status(403).json({ error: 'Forbidden' });
 
 app.get('/admin', authMiddleware, requireRole('admin'), handler);
 ```
@@ -870,28 +863,18 @@ if (!doc) return res.status(404).end();
 // ✅ Secure express-session config
 app.use(session({
   secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: false,
+  resave: false, saveUninitialized: false,
   cookie: {
-    httpOnly: true,
-    secure: true,        // HTTPS only
+    httpOnly: true, secure: true,
     sameSite: 'strict',
-    maxAge: 30 * 60 * 1000 // 30 min
+    maxAge: 30 * 60 * 1000
   }
 }));
 
-// Regenerate session ID on login (prevents session fixation)
+// Regenerate ID on login — prevents session fixation
 req.session.regenerate((err) => {
   req.session.userId = user.id;
   res.redirect('/dashboard');
-});
-
-// Destroy session on logout
-app.post('/logout', (req, res) => {
-  req.session.destroy(() => {
-    res.clearCookie('connect.sid');
-    res.redirect('/login');
-  });
 });
 ```
 
@@ -1400,33 +1383,21 @@ layout: section
 <div>
 
 ```js
-// ✅ express-rate-limit
-const rateLimit = require('express-rate-limit');
-
-// General API limit
+// ✅ Global limit: 100 req / 15 min
 const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100,
-  standardHeaders: true,
-  legacyHeaders: false,
+  windowMs: 15 * 60 * 1000,
+  max: 100, standardHeaders: true, legacyHeaders: false,
   message: { error: 'Too many requests' }
 });
 
-// Stricter limit for auth endpoints
+// ✅ Strict auth limit: 5 attempts / 15 min
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 5,  // only 5 attempts per 15 min
-  skipSuccessfulRequests: true
+  max: 5, skipSuccessfulRequests: true
 });
 
 app.use('/api/', apiLimiter);
 app.post('/auth/login', loginLimiter, loginHandler);
-
-// ✅ Validate all inputs (Zod)
-const schema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8).max(128)
-});
 ```
 
 </div>

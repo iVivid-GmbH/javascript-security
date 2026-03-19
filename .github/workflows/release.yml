@@ -150,10 +150,10 @@ jobs:
             |------|-------------|
             | `js-security-reveal-presentation.pdf` | **Reveal.js** slide deck — 2D navigation, code animations |
             | `js-security-slidev-presentation.pdf` | **Slidev** slide deck — alternative export |
-            | `js-security-complete-reference.pdf` | All 45 concept markdown files combined into one document |
+            | `js-security-complete-reference.pdf` | All 47 concept markdown files combined into one document |
 
             ### What's Covered
-            45 JavaScript & Frontend security concepts across 9 categories:
+            47 JavaScript & Frontend security concepts across 9 categories:
             - 🔴 Client-Side Attacks (XSS, Clickjacking, Prototype Pollution, DOM Clobbering, ReDoS, …)
             - 🟠 Injection Attacks (SQL, NoSQL, Command, LDAP, Template/SSTI)
             - 🟡 Cross-Origin & Request Forgery (CSRF, CORS Misconfiguration, SSRF)
