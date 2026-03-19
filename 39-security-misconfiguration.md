@@ -314,10 +314,9 @@ app.use(helmet({
     action: 'deny'  // Sets X-Frame-Options: DENY
   },
 
-  // XSS protection (legacy)
-  xssFilter: {
-    mode: 'block'  // Sets X-XSS-Protection: 1; mode=block
-  },
+  // xssFilter is disabled by default in Helmet 5+ — X-XSS-Protection is deprecated
+  // and can introduce vulnerabilities in IE; rely on CSP instead
+  // xssFilter: false,
 
   // HSTS (force HTTPS)
   hsts: {
@@ -677,7 +676,7 @@ app.listen(3000);
 ```
 ✓ X-Content-Type-Options: nosniff
 ✓ X-Frame-Options: DENY or SAMEORIGIN
-✓ X-XSS-Protection: 1; mode=block
+✗ X-XSS-Protection — deprecated, disabled in Chrome/Firefox; omit or set to 0
 ✓ Strict-Transport-Security: max-age=31536000; includeSubDomains
 ✓ Content-Security-Policy: (with appropriate directives)
 ✓ Referrer-Policy: strict-origin-when-cross-origin

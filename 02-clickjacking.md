@@ -443,7 +443,8 @@ res.setHeader('Content-Security-Policy', "frame-ancestors 'self';");
 
 // 3. Additional security headers
 res.setHeader('X-Content-Type-Options', 'nosniff');
-res.setHeader('X-XSS-Protection', '1; mode=block');
+// X-XSS-Protection is legacy and disabled in modern browsers — rely on CSP instead
+// res.setHeader('X-XSS-Protection', '1; mode=block'); // deprecated
 ```
 
 ### Client-side Defensive Coding

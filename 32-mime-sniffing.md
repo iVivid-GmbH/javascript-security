@@ -510,7 +510,7 @@ const SECURITY_HEADERS = {
   'X-Content-Type-Options': 'nosniff',
   'X-Download-Options': 'noopen',
   'X-Frame-Options': 'DENY',
-  'X-XSS-Protection': '1; mode=block'
+  // 'X-XSS-Protection': '1; mode=block' — legacy, disabled in modern browsers; use CSP instead
 };
 
 app.get('/files/:id', (req, res) => {
