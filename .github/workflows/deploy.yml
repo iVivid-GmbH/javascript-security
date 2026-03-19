@@ -2,8 +2,7 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -20,66 +19,48 @@ env:
 
 jobs:
   build:
-    name: Build static site
+    name: Build
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '20'
 
       - name: Install dependencies
-        run: npm install --no-audit --no-fund
+        run: npm install
 
-      # ── Compute base path from repo name (e.g. /javascript-security/) ──
-      - name: Set Slidev base path
-        id: base
-        run: |
-          REPO_NAME="${GITHUB_REPOSITORY#*/}"
-          echo "path=/${REPO_NAME}/" >> "$GITHUB_OUTPUT"
-          echo "Base path: /${REPO_NAME}/"
-
-      # ── Primary presentation: Slidev SPA ────────────────────────────────
-      - name: Build Slidev presentation
+      - name: Build Slidev
         run: |
           npx slidev build slides.md \
-            --base "${{ steps.base.outputs.path }}" \
+            --base /${{ github.event.repository.name }}/ \
             --out dist
 
-      # ── Add SRI hashes to the Reveal.js file before including it ────────
-      - name: Add SRI hashes to slides.html (Reveal.js)
+      - name: Add SRI hashes to Reveal.js deck
         run: node scripts/add-sri.js
+        continue-on-error: true
 
-      # ── Include Reveal.js as /reveal.html and copy all markdown docs ────
-      - name: Copy supporting files into dist
+      - name: Copy Reveal.js deck and reference docs into dist
         run: |
-          # Reveal.js 2D presentation available at /reveal.html
           cp slides.html dist/reveal.html
+          cp README.md dist/ 2>/dev/null || true
+          cp [0-9][0-9]-*.md dist/ 2>/dev/null || true
+          cp AGENT.md dist/ 2>/dev/null || true
 
-          # Copy all concept markdown files so deep-dive links work
-          cp README.md dist/README.md
-          cp -r [0-9][0-9]-*.md dist/ 2>/dev/null || true
-          cp AGENT.md dist/AGENT.md 2>/dev/null || true
+      - uses: actions/configure-pages@v5
 
-      - name: Setup GitHub Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v3
         with:
           path: dist/
 
   deploy:
-    name: Deploy to GitHub Pages
+    name: Deploy
     needs: build
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
+      - id: deployment
         uses: actions/deploy-pages@v4
