@@ -431,6 +431,8 @@
             <li>02 — Clickjacking</li>
             <li>03 — Prototype Pollution</li>
             <li>04–08 — DOM Clobbering, eval, Insecure Storage, ReDoS, Open Redirects</li>
+            <li>46 — Micro-Frontend Security</li>
+            <li>48 — Framework Security (React / Vue / Angular)</li>
           </ul>
           <p class="hint">⬇ Press down to explore concepts</p>
         </section>
@@ -600,6 +602,74 @@ for (let key in source) {
           </div>
         </section>
 
+        <!-- 3.5: Micro-Frontend Security -->
+        <section>
+          <h2>46 — Micro-Frontend (MFE) Security</h2>
+          <div class="grid-2">
+            <div>
+              <h3 style="color:#ff6b6b;">❌ Vulnerable — Trusting Remote Blindly</h3>
+              <pre><code class="language-javascript" data-line-numbers="1-5|7-12">// host app — Module Federation config
+remotes: {
+  checkout: 'checkout@https://cdn.partner.com/remoteEntry.js'
+  // ❌ No SRI, no origin pinning — partner can push malicious code
+}
+
+// Remote has full access to host DOM and shared state
+const { authToken } = useSharedStore(); // ← attacker reads token
+document.cookie;                        // ← reads all cookies
+fetch('/api/admin', { credentials: 'include' }); // ← CSRF</code></pre>
+            </div>
+            <div>
+              <h3 style="color:#2ecc71;">✅ Isolation Strategy</h3>
+              <pre><code class="language-javascript" data-line-numbers="1-6|8-13">// ✅ Pin remote with SRI + allowlist origins
+remotes: {
+  checkout: `promise new Promise((res, rej) => {
+    loadRemote('checkout', knownHash, res, rej);
+  })`
+}
+// ✅ Scope shared state — never pass raw tokens to remotes
+const { cartId } = useSharedStore(); // share only non-sensitive data
+// ✅ Sandbox untrusted remotes in iframe + postMessage
+// ✅ CSP per remote origin
+// ✅ Audit remote bundle hashes in CI pipeline</code></pre>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3.6: Framework Security -->
+        <section>
+          <h2>48 — Framework Security (React / Vue / Angular)</h2>
+          <div class="grid-2">
+            <div>
+              <h3 style="color:#ff6b6b;">❌ Framework XSS Pitfalls</h3>
+              <pre><code class="language-jsx" data-line-numbers="1-3|5-7|9-11">// ❌ React — raw HTML injection
+&lt;div dangerouslySetInnerHTML={{ __html: userBio }} /&gt;
+
+// ❌ Vue — v-html with user content
+&lt;div v-html="userComment"&gt;&lt;/div&gt;
+
+// ❌ Angular — bypassing sanitizer
+this.safeHtml = this.sanitizer
+  .bypassSecurityTrustHtml(userInput);</code></pre>
+            </div>
+            <div>
+              <h3 style="color:#2ecc71;">✅ Safe Patterns</h3>
+              <pre><code class="language-jsx" data-line-numbers="1-5|7-9|11-15">// ✅ React — sanitise before injecting
+import DOMPurify from 'dompurify';
+&lt;div dangerouslySetInnerHTML={{
+  __html: DOMPurify.sanitize(userBio)
+}} /&gt;
+// ✅ Vue — use text binding unless HTML is trusted
+&lt;p&gt;{{ userComment }}&lt;/p&gt;
+
+// ✅ Angular — sanitizer is safe by default; never bypass
+// ✅ SSR (Next.js/Nuxt): never interpolate user data into
+//    getServerSideProps HTML strings — use JSON.stringify
+//    and pass through props, not raw HTML</code></pre>
+            </div>
+          </div>
+        </section>
+
       </section>
 
       <!-- SECTION 4: Injection Attacks -->
@@ -612,7 +682,7 @@ for (let key in source) {
           <blockquote style="border-left-color: #ffa500;">"All input is evil until proven otherwise." — Michael Howard, Writing Secure Code</blockquote>
           <ul style="margin-top: 2em; font-size: 1.2em;">
             <li>09 — SQL Injection</li>
-            <li>10–13 — NoSQL, Command, LDAP, Template/SSTI</li>
+            <li>10–11, 13 — NoSQL, Command, Template/SSTI</li>
           </ul>
           <p class="hint">⬇ Press down to explore concepts</p>
         </section>
@@ -677,16 +747,6 @@ db.users.find({email: req.body.email});
 exec(`ls ${directory}`);
 
 // Attack: directory = "; rm -rf /"
-              </code></pre>
-            </div>
-            <div class="card fragment" style="--accent-color: #ffa500;">
-              <h4>LDAP Injection</h4>
-              <p>LDAP query manipulation:</p>
-              <pre><code class="language-javascript">// VULNERABLE
-ldap.search({
-  filter: `(uid=${username})`
-});
-// Use escaping libraries
               </code></pre>
             </div>
             <div class="card fragment" style="--accent-color: #ffa500;">
@@ -1092,43 +1152,107 @@ req.session.destroy();
             <li>23 — HTTPS & TLS</li>
             <li>24 — HSTS</li>
             <li>25 — Man-in-the-Middle</li>
-            <li>26 — Certificate Pinning</li>
             <li>27 — WebSocket Security</li>
+            <li>47 — Web Crypto API</li>
+            <li>49 — Web Cache Poisoning</li>
           </ul>
           <p class="hint">⬇ Press down to explore concepts</p>
         </section>
 
         <!-- 7.1: Transport Security (Cards) -->
         <section>
-          <h2>23–27 — Transport Security Concepts</h2>
-          <div class="grid-5">
+          <h2>23–25, 27 — Transport Security Concepts</h2>
+          <div class="grid-4">
             <div class="card fragment" style="--accent-color: #58a6ff;">
               <h4>HTTPS & TLS</h4>
-              <p>Encrypt all data in transit. Use TLS 1.2+.</p>
+              <p>Encrypt all data in transit. Require TLS 1.2+, disable older ciphers.</p>
               <pre><code class="language-bash">npm install helmet</code></pre>
             </div>
             <div class="card fragment" style="--accent-color: #58a6ff;">
               <h4>HSTS</h4>
-              <p>Force HTTPS-only connections:</p>
+              <p>Force HTTPS-only connections including subdomains:</p>
               <pre><code class="language-javascript">helmet.hsts({
-  maxAge: 31536000
+  maxAge: 31536000,
+  includeSubDomains: true
 });</code></pre>
             </div>
             <div class="card fragment" style="--accent-color: #58a6ff;">
               <h4>Man-in-the-Middle</h4>
-              <p>Attacker intercepts unencrypted traffic. Use HTTPS + HSTS.</p>
+              <p>Attacker intercepts unencrypted traffic. Require HTTPS + HSTS + valid certificates.</p>
             </div>
             <div class="card fragment" style="--accent-color: #58a6ff;">
-              <h4>Cert Pinning</h4>
-              <p>Pin certificate hash for critical APIs.</p>
-              <pre><code class="language-bash">npm install hpkp</code></pre>
-            </div>
-            <div class="card fragment" style="--accent-color: #58a6ff;">
-              <h4>WebSocket Sec</h4>
-              <p>Verify origin & authenticate first message:</p>
+              <h4>WebSocket Security</h4>
+              <p>Verify origin & authenticate on first message:</p>
               <pre><code class="language-javascript">const verifyClient = (info) => {
   return info.origin === 'https://app.com';
 };</code></pre>
+            </div>
+          </div>
+        </section>
+
+        <!-- 7.2: Web Crypto API -->
+        <section>
+          <h2>47 — Client-Side Cryptography & Web Crypto API</h2>
+          <div class="grid-2">
+            <div>
+              <h3 style="color:#ff6b6b;">❌ Common Mistakes</h3>
+              <pre><code class="language-javascript" data-line-numbers="1-3|5-8|10-12">// ❌ Using Math.random for keys
+const key = Math.random().toString(36);
+
+// ❌ Storing keys in localStorage
+localStorage.setItem('encKey', exportedKey);
+
+// ❌ ECB mode — leaks patterns
+{ name: 'AES-CBC', iv: sameIvEveryTime }
+// ❌ Weak PBKDF2 — too few iterations
+{ name: 'PBKDF2', iterations: 1000 }</code></pre>
+            </div>
+            <div>
+              <h3 style="color:#2ecc71;">✅ Correct Pattern</h3>
+              <pre><code class="language-javascript" data-line-numbers="1-6|8-14">// ✅ Secure key derivation
+const key = await crypto.subtle.deriveKey(
+  { name: 'PBKDF2', salt, iterations: 600_000,
+    hash: 'SHA-256' },
+  baseKey,
+  { name: 'AES-GCM', length: 256 }, false, ['encrypt']
+);
+// ✅ AES-GCM with random IV every time
+const iv = crypto.getRandomValues(new Uint8Array(12));
+const cipher = await crypto.subtle.encrypt(
+  { name: 'AES-GCM', iv },
+  key, data
+);
+// ✅ Store keys in IndexedDB or Web Crypto non-extractable</code></pre>
+            </div>
+          </div>
+        </section>
+
+        <!-- 7.3: Web Cache Poisoning -->
+        <section>
+          <h2>49 — Web Cache Poisoning & Cache Deception</h2>
+          <div class="grid-2">
+            <div>
+              <h3 style="color:#ff6b6b;">❌ Vulnerable — Unkeyed Header</h3>
+              <pre><code class="language-javascript" data-line-numbers="1-5|7-10">// Server reflects X-Forwarded-Host without keying it
+app.get('/', (req, res) => {
+  const host = req.headers['x-forwarded-host']
+             || req.headers['host'];
+  res.send(`&lt;script src="https://${host}/app.js"&gt;&lt;/script&gt;`);
+});
+// Attacker poisons cache:
+// GET / HTTP/1.1
+// Host: app.com
+// X-Forwarded-Host: attacker.com  ← injected into response, cached</code></pre>
+            </div>
+            <div>
+              <h3 style="color:#2ecc71;">✅ Defences</h3>
+              <ul class="fragment" style="font-size:0.85em; line-height:1.8;">
+                <li>Add all varying headers to cache key (<code>Vary</code> header)</li>
+                <li>Never reflect request headers into responses unvalidated</li>
+                <li>Use <code>Cache-Control: no-store</code> for authenticated/personalised responses</li>
+                <li>Audit CDN cache rules — block caching of URLs with path suffixes like <code>.css</code> pointing to auth endpoints</li>
+                <li>Enable <code>X-Cache-Status</code> headers in staging to audit what gets cached</li>
+              </ul>
             </div>
           </div>
         </section>
@@ -1715,6 +1839,8 @@ npm install npm-audit
             <a href="06-insecure-data-storage.md" target="_blank" class="ref-link">06 · Insecure Data Storage</a>
             <a href="07-redos.md" target="_blank" class="ref-link">07 · ReDoS — Regex Denial of Service</a>
             <a href="08-open-redirects.md" target="_blank" class="ref-link">08 · Open Redirects</a>
+            <a href="46-microfrontend-security.md" target="_blank" class="ref-link">46 · Micro-Frontend (MFE) Security</a>
+            <a href="48-framework-security.md" target="_blank" class="ref-link">48 · Framework Security (React / Vue / Angular)</a>
           </div>
         </section>
 
@@ -1725,7 +1851,6 @@ npm install npm-audit
             <a href="09-sql-injection.md" target="_blank" class="ref-link">09 · SQL Injection</a>
             <a href="10-nosql-injection.md" target="_blank" class="ref-link">10 · NoSQL Injection</a>
             <a href="11-command-injection.md" target="_blank" class="ref-link">11 · Command Injection</a>
-            <a href="12-ldap-injection.md" target="_blank" class="ref-link">12 · LDAP Injection</a>
             <a href="13-html-template-injection.md" target="_blank" class="ref-link">13 · HTML / Template Injection (SSTI)</a>
           </div>
         </section>
@@ -1760,8 +1885,9 @@ npm install npm-audit
             <a href="23-https-tls.md" target="_blank" class="ref-link">23 · HTTPS / TLS</a>
             <a href="24-hsts.md" target="_blank" class="ref-link">24 · HSTS — HTTP Strict Transport Security</a>
             <a href="25-man-in-the-middle.md" target="_blank" class="ref-link">25 · Man-in-the-Middle Attacks</a>
-            <a href="26-certificate-pinning.md" target="_blank" class="ref-link">26 · Certificate Pinning</a>
             <a href="27-websocket-security.md" target="_blank" class="ref-link">27 · WebSocket Security</a>
+            <a href="47-web-crypto-api.md" target="_blank" class="ref-link">47 · Client-Side Cryptography &amp; Web Crypto API</a>
+            <a href="49-web-cache-poisoning.md" target="_blank" class="ref-link">49 · Web Cache Poisoning &amp; Cache Deception</a>
           </div>
         </section>
 
