@@ -1,0 +1,168 @@
+name: Create Release with PDF Artifacts
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'   # Triggers on version tags like v1.0.0
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (e.g. v1.0.0)'
+        required: true
+        default: 'v1.0.0'
+
+permissions:
+  contents: write  # needed to create releases and upload assets
+
+jobs:
+  build-pdf-artifacts:
+    name: Build PDF Artifacts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ─────────────────────────────────────────────
+      # 1. Slidev Presentation PDF
+      # ─────────────────────────────────────────────
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Install Playwright Chromium (required for Slidev PDF export)
+        run: npx playwright install chromium --with-deps
+
+      - name: Export Slidev presentation as PDF
+        run: |
+          mkdir -p dist
+          npx slidev export slides.md \
+            --format pdf \
+            --output dist/js-security-presentation.pdf \
+            --timeout 60000
+
+      # ─────────────────────────────────────────────
+      # 2. Combined Markdown → PDF
+      # ─────────────────────────────────────────────
+      - name: Install Pandoc and wkhtmltopdf
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y pandoc wkhtmltopdf xvfb
+
+      - name: Combine all concept markdown files into one document
+        run: |
+          # Write a title page
+          cat > /tmp/combined-header.md << 'EOF'
+          ---
+          title: "JavaScript & Frontend Security — Complete Reference"
+          author: "Security Reference Documentation"
+          date: "$(date +%Y-%m-%d)"
+          toc: true
+          toc-depth: 2
+          geometry: "margin=2.5cm"
+          fontsize: 11pt
+          colorlinks: true
+          linkcolor: blue
+          ---
+          EOF
+
+          # Concatenate README + all numbered concept files in order
+          {
+            cat /tmp/combined-header.md
+            echo ""
+            echo "\\newpage"
+            echo ""
+            cat README.md
+            echo ""
+            # Sort numerically by filename prefix
+            for f in $(ls [0-9][0-9]-*.md | sort); do
+              echo ""
+              echo "\\newpage"
+              echo ""
+              cat "$f"
+            done
+          } > /tmp/combined-docs.md
+
+      - name: Convert combined markdown to PDF via Pandoc
+        run: |
+          xvfb-run --auto-servernum pandoc /tmp/combined-docs.md \
+            --from=markdown+fenced_code_blocks+backtick_code_blocks \
+            --to=pdf \
+            --pdf-engine=wkhtmltopdf \
+            --pdf-engine-opt="--enable-local-file-access" \
+            --toc \
+            --toc-depth=2 \
+            --highlight-style=tango \
+            -V geometry:margin=2.5cm \
+            -V fontsize=11pt \
+            -o dist/js-security-complete-reference.pdf \
+            2>&1 || true
+
+          # Fallback: if wkhtmltopdf fails, try pdflatex route
+          if [ ! -f dist/js-security-complete-reference.pdf ]; then
+            echo "Trying pdflatex fallback..."
+            sudo apt-get install -y texlive-xetex texlive-fonts-recommended
+            pandoc /tmp/combined-docs.md \
+              --from=markdown \
+              --to=pdf \
+              --pdf-engine=xelatex \
+              --toc \
+              -V geometry:margin=2.5cm \
+              -V mainfont="DejaVu Sans" \
+              -o dist/js-security-complete-reference.pdf
+          fi
+
+      # ─────────────────────────────────────────────
+      # 3. Create GitHub Release with both PDFs
+      # ─────────────────────────────────────────────
+      - name: Determine release tag
+        id: tag
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "tag=${{ github.event.inputs.tag }}" >> $GITHUB_OUTPUT
+          else
+            echo "tag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create GitHub Release and upload PDFs
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: "JS Security Reference ${{ steps.tag.outputs.tag }}"
+          body: |
+            ## 📦 Release ${{ steps.tag.outputs.tag }}
+
+            ### Artifacts included:
+
+            | File | Description |
+            |------|-------------|
+            | `js-security-presentation.pdf` | Slidev slide deck exported as PDF (all slides) |
+            | `js-security-complete-reference.pdf` | All 45 concept markdown files combined into one PDF document |
+
+            ### What's Covered
+            45 JavaScript & Frontend security concepts across 9 categories:
+            - Client-Side Attacks (XSS, Clickjacking, Prototype Pollution, …)
+            - Injection Attacks (SQL, NoSQL, Command, LDAP, Template)
+            - Cross-Origin & Request Forgery (CSRF, CORS, SSRF)
+            - Authentication & Authorization (JWT, OAuth/OIDC, IDOR, …)
+            - Transport Security (HTTPS, HSTS, MitM, Certificate Pinning, WebSockets)
+            - HTTP Security Headers (CSP, Cookies, Referrer Policy, MIME Sniffing)
+            - Supply Chain (Supply Chain Attacks, SRI, Outdated Components)
+            - API & Backend Security (Rate Limiting, Crypto Failures, Mass Assignment)
+            - Availability & Monitoring (DoS/DDoS, Logging, Insecure Design)
+
+            ### 🌐 Live Presentation
+            View the interactive Slidev presentation on GitHub Pages:
+            `https://<your-username>.github.io/<your-repo-name>/`
+          files: |
+            dist/js-security-presentation.pdf
+            dist/js-security-complete-reference.pdf
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
