@@ -1,6 +1,6 @@
 # JavaScript & Frontend Security — Complete Reference
 
-> A comprehensive, research-ready overview of crucial security concepts for JavaScript/frontend development and frontend-backend communication. Each concept below links to a dedicated deep-dive file with explanations, examples, and mitigations.
+> A comprehensive, research-ready overview of **47 security concepts** for JavaScript/frontend development and frontend-backend communication. Each concept links to a dedicated deep-dive file with explanations, examples, and mitigations.
 
 ---
 
@@ -22,6 +22,8 @@ Each entry includes a one-to-two sentence summary. Click the link to open the de
 | 06 | [Insecure Data Storage (Client-Side)](./06-insecure-data-storage.md) | Storing sensitive tokens or PII in `localStorage`, `sessionStorage`, or insecure cookies exposes them to XSS theft. HttpOnly cookies and short-lived tokens are safer alternatives. |
 | 07 | [ReDoS — Regular Expression DoS](./07-redos.md) | Poorly written regex patterns with catastrophic backtracking can freeze a JavaScript engine when fed crafted input, causing denial of service. |
 | 08 | [Open Redirects](./08-open-redirects.md) | A URL parameter controls where the app redirects users; attackers exploit this to send victims to phishing sites while appearing to come from a trusted domain. |
+| 46 | [Micro-Frontend (MFE) Security](./46-microfrontend-security.md) | Module Federation and similar MFE architectures introduce cross-remote trust boundaries; an untrusted remote can escalate privileges, poison shared state, or inject scripts into the host shell. |
+| 48 | [Framework Security (React / Vue / Angular)](./48-framework-security.md) | Each major frontend framework has specific pitfalls — `dangerouslySetInnerHTML`, `v-html`, Angular's `bypassSecurityTrustHtml`, SSR hydration mismatches — that re-open XSS channels if misused. |
 
 ---
 
@@ -32,7 +34,6 @@ Each entry includes a one-to-two sentence summary. Click the link to open the de
 | 09 | [SQL Injection](./09-sql-injection.md) | Unsanitized user input is embedded in SQL queries, allowing attackers to read, modify, or delete database data. Parameterized queries and ORMs eliminate this risk. |
 | 10 | [NoSQL Injection](./10-nosql-injection.md) | Similar to SQL injection but targeting document databases (MongoDB, etc.) via JSON operators like `$where` or `$gt` injected in request bodies. |
 | 11 | [Command Injection](./11-command-injection.md) | User input passed to OS shell commands (Node.js `exec`, `spawn`) can execute arbitrary system commands if not properly escaped. |
-| 12 | [LDAP Injection](./12-ldap-injection.md) | Unsanitized input inserted into LDAP queries can bypass authentication or expose directory data. |
 | 13 | [HTML & Template Injection](./13-html-template-injection.md) | Untrusted input rendered directly into HTML templates (server-side or client-side) can lead to XSS or, in server-side template engines, full remote code execution (SSTI). |
 
 ---
@@ -67,8 +68,9 @@ Each entry includes a one-to-two sentence summary. Click the link to open the de
 | 23 | [HTTPS & TLS](./23-https-tls.md) | Encrypts data in transit between browser and server; without it, network attackers can read or modify all traffic (man-in-the-middle). |
 | 24 | [HTTP Strict Transport Security (HSTS)](./24-hsts.md) | An HTTP header that forces browsers to use HTTPS only for a domain, preventing SSL stripping and downgrade attacks. |
 | 25 | [Man-in-the-Middle (MitM) Attacks](./25-man-in-the-middle.md) | An attacker positions themselves between client and server to intercept or alter communications; prevented by TLS, HSTS, and certificate validation. |
-| 26 | [Certificate Pinning](./26-certificate-pinning.md) | The app trusts only specific certificates or public keys for a domain, preventing attacks using fraudulently issued certificates. |
 | 27 | [WebSocket Security](./27-websocket-security.md) | WebSocket connections bypass some browser security policies; they require origin validation, authentication tokens, and protection against message injection. |
+| 47 | [Client-Side Cryptography & Web Crypto API](./47-web-crypto-api.md) | The browser's native `crypto.subtle` API offers secure primitives (AES-GCM, PBKDF2, ECDH), but misuse — weak IVs, ECB mode, `Math.random` for keys, key storage in `localStorage` — undermines all security guarantees. |
+| 49 | [Web Cache Poisoning & Cache Deception](./49-web-cache-poisoning.md) | Attackers inject unkeyed request headers (e.g. `X-Forwarded-Host`) to make CDN caches serve malicious responses to all users; cache deception tricks caches into storing private data at predictable public URLs. |
 
 ---
 
