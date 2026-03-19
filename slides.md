@@ -18,7 +18,7 @@ fonts:
   mono: 'Fira Code'
 ---
 
-# 🔐 JavaScript & Frontend Security
+# JavaScript & Frontend Security
 
 ### A Complete Developer Reference
 
@@ -36,7 +36,7 @@ fonts:
 layout: default
 ---
 
-# 📚 What This Covers
+# What This Covers
 
 <div class="grid grid-cols-3 gap-4 mt-4 text-sm">
   <div class="bg-red-900/30 border border-red-700 rounded p-3">
@@ -45,7 +45,7 @@ layout: default
   </div>
   <div class="bg-orange-900/30 border border-orange-700 rounded p-3">
     <div class="font-bold text-orange-400 mb-2">🟠 Injection</div>
-    <div class="text-gray-300">SQL Injection · NoSQL Injection · Command Injection · LDAP Injection · Template Injection</div>
+    <div class="text-gray-300">SQL Injection · NoSQL Injection · Command Injection · Template Injection</div>
   </div>
   <div class="bg-yellow-900/30 border border-yellow-700 rounded p-3">
     <div class="font-bold text-yellow-400 mb-2">🟡 Cross-Origin</div>
@@ -57,7 +57,7 @@ layout: default
   </div>
   <div class="bg-blue-900/30 border border-blue-700 rounded p-3">
     <div class="font-bold text-blue-400 mb-2">🔵 Transport</div>
-    <div class="text-gray-300">HTTPS/TLS · HSTS · MitM · Certificate Pinning · WebSocket Security</div>
+    <div class="text-gray-300">HTTPS/TLS · HSTS · MitM · WebSocket Security · Web Crypto API · Cache Poisoning</div>
   </div>
   <div class="bg-purple-900/30 border border-purple-700 rounded p-3">
     <div class="font-bold text-purple-400 mb-2">🟣 Headers & Policies</div>
@@ -275,6 +275,93 @@ res.redirect(ALLOWED.includes(next)
 </div>
 
 ---
+
+## 46 · Micro-Frontend (MFE) Security
+
+<div class="grid grid-cols-2 gap-6">
+<div>
+
+**The risk:** Module Federation remotes run with full host-app trust. A compromised remote reads shared tokens, makes credentialed API calls, and modifies the DOM.
+
+```js
+// ❌ Blindly loading a remote
+remotes: {
+  checkout: 'checkout@https://cdn.partner.com/remoteEntry.js'
+  // No SRI, no origin allowlist
+}
+
+// ✅ Validate remote integrity
+remotes: {
+  checkout: `promise new Promise((res, rej) =>
+    loadRemote('checkout', KNOWN_HASH, res, rej)
+  )`
+}
+```
+
+</div>
+<div>
+
+**Defences:**
+- Pin remote bundle hash in CI; fail build on mismatch
+- Never pass auth tokens to remotes — share only non-sensitive state
+- Sandbox untrusted remotes in `<iframe>` with `allow` policy
+- Apply a strict CSP scoped to each remote's origin
+- Audit `shared:` config — accidentally shared `react` or `lodash` can be hijacked
+
+</div>
+</div>
+
+---
+
+## 48 · Framework Security (React / Vue / Angular)
+
+<div class="grid grid-cols-2 gap-6">
+<div>
+
+**Framework XSS pitfalls:**
+
+```jsx
+// ❌ React — raw HTML injection
+<div dangerouslySetInnerHTML={{ __html: userBio }} />
+
+// ❌ Vue — v-html with user content
+<div v-html="userComment"></div>
+
+// ❌ Angular — bypassing sanitizer
+this.safe = this.san.bypassSecurityTrustHtml(input);
+
+// ❌ Next.js SSR — string interpolation into HTML
+`<div>${req.query.name}</div>` // XSS via SSR
+```
+
+</div>
+<div>
+
+**Safe patterns:**
+
+```jsx
+// ✅ React — sanitise before injecting
+import DOMPurify from 'dompurify';
+<div dangerouslySetInnerHTML={{
+  __html: DOMPurify.sanitize(userBio)
+}} />
+
+// ✅ Vue — text binding is always safe
+<p>{{ userComment }}</p>
+
+// ✅ Angular sanitizer is safe by default
+// Only bypass if content comes from your own CMS
+
+// ✅ Next.js — pass data through props, not HTML strings
+export async function getServerSideProps({ query }) {
+  return { props: { name: query.name } }; // escaped by React
+}
+```
+
+</div>
+</div>
+
+---
 layout: section
 ---
 
@@ -359,9 +446,6 @@ User input passed to `child_process.exec()` can execute arbitrary OS commands vi
 
 </div>
 <div class="space-y-3">
-
-**12 · LDAP Injection**
-Unsanitized input in LDAP filters enables authentication bypass or directory data extraction. Always escape special characters or use safe filter builders.
 
 **13 · HTML / Template Injection**
 - **Client-side**: User input in template literals → XSS
@@ -855,9 +939,6 @@ Attacker intercepts traffic on untrusted networks (public WiFi, ARP spoofing). T
 </div>
 <div class="space-y-3">
 
-**26 · Certificate Pinning**
-Trust only specific certificates/public keys for a domain. Prevents attacks using fraudulently issued certs. HPKP is deprecated — use Certificate Transparency + CAA DNS records instead.
-
 **27 · WebSocket Security**
 ```js
 // ✅ Validate Origin on upgrade
@@ -880,6 +961,98 @@ ws.on('message', async (data) => {
   // validate all messages with Zod/Joi
 });
 ```
+
+</div>
+</div>
+
+---
+
+## 47 · Client-Side Cryptography & Web Crypto API
+
+<div class="grid grid-cols-2 gap-6">
+<div>
+
+**❌ Common mistakes:**
+
+```js
+// ❌ Using Math.random for keys
+const key = Math.random().toString(36);
+
+// ❌ AES-CBC with same IV every time
+const enc = crypto.subtle.encrypt(
+  { name: 'AES-CBC', iv: FIXED_IV }, key, data
+);
+
+// ❌ Storing keys in localStorage
+localStorage.setItem('key', exportedKey);
+
+// ❌ PBKDF2 with too few iterations
+{ name: 'PBKDF2', iterations: 1000 }
+```
+
+</div>
+<div>
+
+**✅ Correct patterns:**
+
+```js
+// ✅ Secure key derivation (600k iterations)
+const key = await crypto.subtle.deriveKey(
+  { name: 'PBKDF2', salt,
+    iterations: 600_000, hash: 'SHA-256' },
+  baseKey,
+  { name: 'AES-GCM', length: 256 },
+  false, ['encrypt', 'decrypt']
+);
+// ✅ Random IV for every encryption
+const iv = crypto.getRandomValues(new Uint8Array(12));
+await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, data);
+
+// ✅ Non-extractable keys stored in IndexedDB
+// ✅ Never do crypto client-side for server-side secrets
+```
+
+</div>
+</div>
+
+---
+
+## 49 · Web Cache Poisoning & Cache Deception
+
+<div class="grid grid-cols-2 gap-6">
+<div>
+
+**Attack — Unkeyed header injection:**
+
+```http
+GET / HTTP/1.1
+Host: app.com
+X-Forwarded-Host: attacker.com
+```
+Server reflects `X-Forwarded-Host` into response → CDN caches it for all users → every visitor receives content pointing to `attacker.com`.
+
+**Cache deception:** `GET /profile/secret.css` — CDN caches private profile page because it looks like a static asset.
+
+</div>
+<div>
+
+**Defences:**
+
+```nginx
+# ✅ Normalise / strip unkeyed headers at edge
+proxy_set_header X-Forwarded-Host $host;
+
+# ✅ Private responses must never be cached
+Cache-Control: no-store, private
+
+# ✅ Vary on headers that affect response
+Vary: Accept-Language, Accept-Encoding
+```
+
+- Audit CDN cache rules — block caching on auth paths
+- Never reflect request headers into response HTML unvalidated
+- Enable `X-Cache-Status` in staging to surface poisonable paths
+- Use path-based cache rules, not extension-based
 
 </div>
 </div>
