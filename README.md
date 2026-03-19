@@ -1,12 +1,29 @@
-# JavaScript & Frontend Security — Complete Reference
+# JavaScript & Frontend Security Reference
 
-> A comprehensive, research-ready overview of **47 security concepts** for JavaScript/frontend development and frontend-backend communication. Each concept links to a dedicated deep-dive file with explanations, examples, and mitigations.
+> A developer-focused overview of **47 security concepts** spanning JavaScript, frontend, and frontend-backend communication. Each concept links to a dedicated deep-dive file with explanations, attack scenarios, code examples (vulnerable vs. secure), and mitigations. Coverage aims to be broad rather than exhaustive — treat it as a structured starting point, not a definitive specification.
+
+---
+
+## Architecture
+
+This repo ships two presentation formats built from the same concepts:
+
+| | `slides.html` (Reveal.js) | `slides.md` (Slidev) |
+|-|---|---|
+| **Purpose** | Canonical presentation, deployed to GitHub Pages | Companion deck, hot-reload local dev |
+| **Navigation** | 2D — Right = next category, Down = concept slides | Linear |
+| **Deploy** | Automatic via `deploy.yml` | `npm run dev` or manual build |
+| **PDF export** | `npm run export:reveal-pdf` | `npm run export:slidev-pdf` |
+
+`slides.html` is the source of truth. When updating content, update both.
+
+> **Note on file numbering:** concepts 12 (LDAP Injection) and 26 (Certificate Pinning) were intentionally removed as out-of-scope for modern JS stacks. Their numbers were not reused to avoid breaking existing links. The gaps are not errors.
 
 ---
 
 ## How to Use This Reference
 
-Each entry includes a one-to-two sentence summary. Click the link to open the detailed file for that concept, which contains: a full explanation, how attacks work, code examples (vulnerable vs. secure), and best-practice mitigations.
+Each entry includes a one-to-two sentence summary. Click the link to open the detailed file for that concept, which contains: a full explanation, how attacks work, code examples (vulnerable vs. secure), and mitigations.
 
 ---
 
