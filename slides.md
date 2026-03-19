@@ -152,7 +152,7 @@ layout: section
 </div>
 <div>
 
-```http
+```bash
 # ✅ Prevention — HTTP Headers
 
 # Block all framing:
@@ -631,6 +631,62 @@ app.get('/admin', authMiddleware, requireRole('admin'), handler);
 
 ---
 
+# 18 — Authentication Failures
+
+**Weak credential handling and broken session management allow attackers to compromise user accounts. OWASP A07.**
+
+<div class="grid grid-cols-2 gap-4 text-sm mt-3">
+<div class="space-y-3">
+
+### What Goes Wrong
+- Passwords hashed with MD5/SHA1 (crackable in seconds)
+- No MFA — single factor is single point of failure
+- No account lockout → brute force succeeds
+- Sessions not invalidated on logout
+- Predictable / short session IDs
+- Password reset tokens that never expire
+
+### Key Mitigations
+- `bcrypt`/`Argon2` with cost factor ≥ 12
+- TOTP-based MFA (`speakeasy` / `otplib`)
+- Rate-limit + lockout on login endpoint
+- Breach detection via HaveIBeenPwned API
+
+</div>
+<div>
+
+```js
+// ✅ Password hashing (bcrypt)
+const bcrypt = require('bcryptjs');
+const COST = 12; // work factor
+const hash = await bcrypt.hash(password, COST);
+const ok   = await bcrypt.compare(password, hash);
+
+// ✅ MFA with TOTP
+const speakeasy = require('speakeasy');
+const secret = speakeasy.generateSecret({ length: 20 });
+// Store secret.base32 for user, show QR code once
+
+const valid = speakeasy.totp.verify({
+  secret: user.totpSecret,
+  encoding: 'base32',
+  token: req.body.totpCode,
+  window: 1  // allow ±30s clock drift
+});
+
+// ✅ HaveIBeenPwned check at registration
+const { pwnedPassword } = require('hibp');
+const count = await pwnedPassword(password);
+if (count > 0) throw new Error('Password found in breach data');
+```
+
+</div>
+</div>
+
+<div class="mt-2 text-xs text-gray-400">📄 Deep dive: <code>18-authentication-failures.md</code></div>
+
+---
+
 # 19 — JWT Security
 
 **JSON Web Tokens can be misconfigured in many ways — each leading to forged tokens and account takeover.**
@@ -641,14 +697,14 @@ app.get('/admin', authMiddleware, requireRole('admin'), handler);
 ### Critical Vulnerabilities
 
 **`alg: none` Attack**
-```json
+```js
 // Attacker forges header:
-{ "alg": "none", "typ": "JWT" }
+// { "alg": "none", "typ": "JWT" }
 // No signature needed — some libraries accept!
 ```
 
 **Algorithm Confusion (RS256 → HS256)**
-```
+```text
 Server uses RS256 (asymmetric).
 Attacker switches to HS256 and signs
 with the PUBLIC key as HMAC secret.
@@ -656,7 +712,7 @@ Vulnerable libraries accept it!
 ```
 
 **Weak Secret**
-```
+```text
 HS256 with short/guessable secret
 → brute-forceable with hashcat in seconds
 ```
@@ -695,17 +751,10 @@ const payload = jwt.verify(token, process.env.JWT_SECRET, {
 
 ---
 
-# 18, 20–22 — Auth Deep Dives
+# 20–22 — OAuth, Sessions & IDOR
 
 <div class="grid grid-cols-2 gap-4 text-sm mt-2">
 <div class="space-y-3">
-
-**18 · Authentication Failures (OWASP A07)**
-- Hash passwords with `bcrypt`/`Argon2` (never MD5/SHA1)
-- Enforce strong password policy + breach detection (HaveIBeenPwned)
-- Implement MFA (TOTP via `speakeasy`)
-- Invalidate sessions on logout
-- Rate-limit login attempts + account lockout
 
 **20 · OAuth 2.0 & OIDC Security**
 - Always use **Authorization Code + PKCE** flow
@@ -713,6 +762,17 @@ const payload = jwt.verify(token, process.env.JWT_SECRET, {
 - Validate `redirect_uri` against registered list — never use wildcards
 - Validate ID token: `iss`, `aud`, `exp`, `nonce`
 - Never use Implicit flow (tokens in URL fragment!)
+
+**22 · IDOR — Insecure Direct Object References**
+Always verify resource ownership, not just authentication:
+```js
+// ✅ Check ownership, not just authentication
+const doc = await Doc.findOne({
+  _id: req.params.id,
+  userId: req.user.id  // ← critical check
+});
+if (!doc) return res.status(404).end();
+```
 
 </div>
 <div class="space-y-3">
@@ -731,19 +791,19 @@ app.use(session({
     maxAge: 30 * 60 * 1000 // 30 min
   }
 }));
-// Regenerate session ID on login (session fixation)
-req.session.regenerate(() => { ... });
-// Destroy on logout
-req.session.destroy();
-```
 
-**22 · IDOR**
-Always verify resource ownership:
-```js
-// ✅ Check ownership, not just authentication
-const doc = await Doc.findOne({
-  _id: req.params.id,
-  userId: req.user.id  // ← critical check
+// Regenerate session ID on login (prevents session fixation)
+req.session.regenerate((err) => {
+  req.session.userId = user.id;
+  res.redirect('/dashboard');
+});
+
+// Destroy session on logout
+app.post('/logout', (req, res) => {
+  req.session.destroy(() => {
+    res.clearCookie('connect.sid');
+    res.redirect('/login');
+  });
 });
 ```
 
@@ -779,7 +839,7 @@ app.use((req, res, next) => {
 
 **24 · HSTS (HTTP Strict Transport Security)**
 Forces browser to use HTTPS only, even if user types HTTP. Prevents SSL stripping attacks.
-```http
+```bash
 Strict-Transport-Security:
   max-age=31536000; includeSubDomains; preload
 ```
@@ -909,7 +969,7 @@ res.cookie('session', value, {
 
 **30 · Referrer Policy**
 Prevents sensitive URL params from leaking to third-party servers via the `Referer` header.
-```http
+```bash
 Referrer-Policy: strict-origin-when-cross-origin
 ```
 Sends full path for same-origin, only origin for cross-origin, nothing for HTTP→HTTPS downgrade.
@@ -919,7 +979,7 @@ Sends full path for same-origin, only origin for cross-origin, nothing for HTTP�
 
 **31 · Permissions Policy**
 Restrict browser APIs for your page and embedded iframes.
-```http
+```bash
 Permissions-Policy:
   camera=(),
   microphone=(),
@@ -930,7 +990,7 @@ Permissions-Policy:
 
 **32 · X-Content-Type-Options (MIME Sniffing)**
 Prevents browsers from guessing content type, stopping polyglot file attacks.
-```http
+```bash
 X-Content-Type-Options: nosniff
 ```
 
@@ -1062,6 +1122,69 @@ Content-Security-Policy:
 </div>
 
 <div class="mt-2 text-xs text-gray-400">📄 Deep dive: <code>34-subresource-integrity.md</code></div>
+
+---
+
+# 35 & 36 — Outdated Components & Third-Party Scripts
+
+<div class="grid grid-cols-2 gap-4 text-sm mt-3">
+<div class="space-y-3">
+
+**35 · Vulnerable & Outdated Components (OWASP A06)**
+
+Using libraries with known CVEs exposes apps to exploits that have already been patched.
+
+```bash
+# Find vulnerabilities in your dependencies
+npm audit
+
+# Auto-fix safe/patch-level upgrades
+npm audit fix
+
+# Check a specific package
+npx snyk test
+
+# View outdated packages
+npm outdated
+```
+
+- Enable **Dependabot** or **Renovate** for automated PRs
+- Pin exact versions for critical security packages
+- Check transitive deps — your `node_modules` tree matters
+- Integrate `npm audit` into CI/CD — fail builds on high severity
+
+</div>
+<div class="space-y-3">
+
+**36 · Third-Party Script Security**
+
+Analytics tags, chat widgets, and ad scripts run with full page privilege — **one compromised vendor = XSS on your site**.
+
+```html
+<!-- ❌ Unlimited trust to third-party -->
+<script src="https://analytics.vendor.com/track.js"></script>
+
+<!-- ✅ SRI hash — blocks tampered versions -->
+<script
+  src="https://analytics.vendor.com/track.js"
+  integrity="sha384-abc123..."
+  crossorigin="anonymous">
+</script>
+
+<!-- ✅ Sandbox third-party widgets in iframes -->
+<iframe
+  src="https://widget.vendor.com/chat"
+  sandbox="allow-scripts allow-same-origin"
+  referrerpolicy="no-referrer">
+</iframe>
+```
+
+Restrict via CSP: `script-src 'self' https://analytics.vendor.com`
+
+</div>
+</div>
+
+<div class="mt-2 text-xs text-gray-400">📄 Deep dive: <code>35-vulnerable-outdated-components.md</code> · <code>36-third-party-scripts.md</code></div>
 
 ---
 layout: section
