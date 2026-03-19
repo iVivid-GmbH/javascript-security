@@ -1,15 +1,18 @@
 {
   "name": "javascript-security-reference",
   "version": "1.0.0",
-  "description": "Complete JavaScript & Frontend Security Reference — Reveal.js 2D presentation + Slidev + 45 deep-dive markdown files",
+  "description": "JavaScript & Frontend Security Reference - Reveal.js 2D presentation + 47 deep-dive markdown files",
   "private": true,
+  "type": "module",
   "scripts": {
     "present": "npx serve . --listen 8080 --no-clipboard",
     "dev": "slidev slides.md --open",
     "build": "slidev build slides.md --base /javascript-security/",
     "export:slidev-pdf": "slidev export slides.md --format pdf --output dist/js-security-slidev.pdf",
     "export:reveal-pdf": "node scripts/export-reveal-pdf.js",
-    "preview": "npx serve dist"
+    "preview": "npx serve dist",
+    "sri": "node scripts/add-sri.js",
+    "sri:check": "node scripts/add-sri.js --check"
   },
   "dependencies": {
     "@slidev/cli": "^0.49.0",
