@@ -147,6 +147,23 @@
       margin-top: 2em;
     }
 
+    /* Reference library links */
+    .ref-link {
+      display: block;
+      color: #c9d1d9;
+      text-decoration: none;
+      padding: 0.35rem 0.6rem;
+      border-radius: 5px;
+      border-left: 2px solid transparent;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+      line-height: 1.4;
+    }
+    .ref-link:hover {
+      background: rgba(255,255,255,0.07);
+      border-left-color: #a78bfa;
+      color: #e6d5ff;
+    }
+
     /* Cards and layout */
     .grid-3 {
       display: grid;
@@ -1665,7 +1682,142 @@ npm install npm-audit
         </div>
       </section>
 
-      <!-- SECTION 14: Closing Slide -->
+      <!-- SECTION 14: Reference Library -->
+      <section>
+
+        <!-- Intro slide -->
+        <section class="section-intro" style="background: radial-gradient(ellipse at 60% 40%, #1a1a2e 0%, #0d0d1a 100%);">
+          <div class="section-emoji">📚</div>
+          <h2 class="gradient-title" style="--accent-color: #a78bfa;">Reference Library</h2>
+          <blockquote style="border-left-color: #a78bfa; max-width: 680px; margin: 1.2rem auto;">
+            <em>"Knowledge is the best security tool you own — and it's free."</em>
+          </blockquote>
+          <div style="display: flex; gap: 1.5rem; justify-content: center; margin-top: 2rem; flex-wrap: wrap;">
+            <a href="README.md" target="_blank" style="display:flex; align-items:center; gap:0.5rem; background:rgba(167,139,250,0.15); border:1px solid #a78bfa; border-radius:8px; padding:0.7rem 1.2rem; color:#a78bfa; text-decoration:none; font-size:0.95em;">
+              📋 README.md <span style="opacity:0.6; font-size:0.8em;">— All 45 concepts overview</span>
+            </a>
+            <a href="AGENT.md" target="_blank" style="display:flex; align-items:center; gap:0.5rem; background:rgba(52,211,153,0.15); border:1px solid #34d399; border-radius:8px; padding:0.7rem 1.2rem; color:#34d399; text-decoration:none; font-size:0.95em;">
+              🤖 AGENT.md <span style="opacity:0.6; font-size:0.8em;">— Automated audit runbook</span>
+            </a>
+          </div>
+          <p class="hint" style="margin-top:2.5rem;">⬇ Press down to browse by category</p>
+        </section>
+
+        <!-- Cat 1: Client-Side Attack Vectors -->
+        <section>
+          <h3 style="color:#ff6b6b; margin-bottom:1rem;">🔴 Client-Side Attack Vectors</h3>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem 2.5rem; font-size:0.82em; text-align:left; max-width:820px; margin:0 auto;">
+            <a href="01-xss-cross-site-scripting.md" target="_blank" class="ref-link">01 · XSS — Cross-Site Scripting</a>
+            <a href="02-clickjacking.md" target="_blank" class="ref-link">02 · Clickjacking</a>
+            <a href="03-prototype-pollution.md" target="_blank" class="ref-link">03 · Prototype Pollution</a>
+            <a href="04-dom-clobbering.md" target="_blank" class="ref-link">04 · DOM Clobbering</a>
+            <a href="05-eval-dynamic-code-execution.md" target="_blank" class="ref-link">05 · eval() &amp; Dynamic Code Execution</a>
+            <a href="06-insecure-data-storage.md" target="_blank" class="ref-link">06 · Insecure Data Storage</a>
+            <a href="07-redos.md" target="_blank" class="ref-link">07 · ReDoS — Regex Denial of Service</a>
+            <a href="08-open-redirects.md" target="_blank" class="ref-link">08 · Open Redirects</a>
+          </div>
+        </section>
+
+        <!-- Cat 2: Injection Attacks -->
+        <section>
+          <h3 style="color:#ff9f43; margin-bottom:1rem;">🟠 Injection Attacks</h3>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem 2.5rem; font-size:0.82em; text-align:left; max-width:820px; margin:0 auto;">
+            <a href="09-sql-injection.md" target="_blank" class="ref-link">09 · SQL Injection</a>
+            <a href="10-nosql-injection.md" target="_blank" class="ref-link">10 · NoSQL Injection</a>
+            <a href="11-command-injection.md" target="_blank" class="ref-link">11 · Command Injection</a>
+            <a href="12-ldap-injection.md" target="_blank" class="ref-link">12 · LDAP Injection</a>
+            <a href="13-html-template-injection.md" target="_blank" class="ref-link">13 · HTML / Template Injection (SSTI)</a>
+          </div>
+        </section>
+
+        <!-- Cat 3: Cross-Origin & Request Forgery -->
+        <section>
+          <h3 style="color:#ffd32a; margin-bottom:1rem;">🟡 Cross-Origin &amp; Request Forgery</h3>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem 2.5rem; font-size:0.82em; text-align:left; max-width:820px; margin:0 auto;">
+            <a href="14-csrf.md" target="_blank" class="ref-link">14 · CSRF — Cross-Site Request Forgery</a>
+            <a href="15-cors.md" target="_blank" class="ref-link">15 · CORS Misconfiguration</a>
+            <a href="16-ssrf.md" target="_blank" class="ref-link">16 · SSRF — Server-Side Request Forgery</a>
+          </div>
+        </section>
+
+        <!-- Cat 4: Authentication & Authorization -->
+        <section>
+          <h3 style="color:#2ecc71; margin-bottom:1rem;">🟢 Authentication &amp; Authorization</h3>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem 2.5rem; font-size:0.82em; text-align:left; max-width:820px; margin:0 auto;">
+            <a href="17-broken-access-control.md" target="_blank" class="ref-link">17 · Broken Access Control</a>
+            <a href="18-authentication-failures.md" target="_blank" class="ref-link">18 · Authentication Failures</a>
+            <a href="19-jwt-security.md" target="_blank" class="ref-link">19 · JWT Security</a>
+            <a href="20-oauth-oidc-security.md" target="_blank" class="ref-link">20 · OAuth 2.0 / OIDC Vulnerabilities</a>
+            <a href="21-session-management.md" target="_blank" class="ref-link">21 · Session Management</a>
+            <a href="22-idor.md" target="_blank" class="ref-link">22 · IDOR — Insecure Direct Object Reference</a>
+          </div>
+        </section>
+
+        <!-- Cat 5: Transport & Network Security -->
+        <section>
+          <h3 style="color:#54a0ff; margin-bottom:1rem;">🔵 Transport &amp; Network Security</h3>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem 2.5rem; font-size:0.82em; text-align:left; max-width:820px; margin:0 auto;">
+            <a href="23-https-tls.md" target="_blank" class="ref-link">23 · HTTPS / TLS</a>
+            <a href="24-hsts.md" target="_blank" class="ref-link">24 · HSTS — HTTP Strict Transport Security</a>
+            <a href="25-man-in-the-middle.md" target="_blank" class="ref-link">25 · Man-in-the-Middle Attacks</a>
+            <a href="26-certificate-pinning.md" target="_blank" class="ref-link">26 · Certificate Pinning</a>
+            <a href="27-websocket-security.md" target="_blank" class="ref-link">27 · WebSocket Security</a>
+          </div>
+        </section>
+
+        <!-- Cat 6: HTTP Security Headers -->
+        <section>
+          <h3 style="color:#c56cf0; margin-bottom:1rem;">🟣 HTTP Security Headers &amp; Browser Policies</h3>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem 2.5rem; font-size:0.82em; text-align:left; max-width:820px; margin:0 auto;">
+            <a href="28-content-security-policy.md" target="_blank" class="ref-link">28 · Content Security Policy (CSP)</a>
+            <a href="29-secure-cookie-attributes.md" target="_blank" class="ref-link">29 · Secure Cookie Attributes</a>
+            <a href="30-referrer-policy.md" target="_blank" class="ref-link">30 · Referrer Policy</a>
+            <a href="31-permissions-policy.md" target="_blank" class="ref-link">31 · Permissions Policy</a>
+            <a href="32-mime-sniffing.md" target="_blank" class="ref-link">32 · MIME Sniffing &amp; X-Content-Type-Options</a>
+          </div>
+        </section>
+
+        <!-- Cat 7: Supply Chain -->
+        <section>
+          <h3 style="color:#a0a0b0; margin-bottom:1rem;">⚫ Supply Chain &amp; Dependency Security</h3>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem 2.5rem; font-size:0.82em; text-align:left; max-width:820px; margin:0 auto;">
+            <a href="33-supply-chain-attacks.md" target="_blank" class="ref-link">33 · Supply Chain Attacks</a>
+            <a href="34-subresource-integrity.md" target="_blank" class="ref-link">34 · Subresource Integrity (SRI)</a>
+            <a href="35-vulnerable-outdated-components.md" target="_blank" class="ref-link">35 · Vulnerable &amp; Outdated Components</a>
+            <a href="36-third-party-scripts.md" target="_blank" class="ref-link">36 · Third-Party Script Risks</a>
+          </div>
+        </section>
+
+        <!-- Cat 8: API & Backend -->
+        <section>
+          <h3 style="color:#fd9644; margin-bottom:1rem;">🔶 API &amp; Backend Communication Security</h3>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem 2.5rem; font-size:0.82em; text-align:left; max-width:820px; margin:0 auto;">
+            <a href="37-api-security-rate-limiting.md" target="_blank" class="ref-link">37 · API Security &amp; Rate Limiting</a>
+            <a href="38-cryptographic-failures.md" target="_blank" class="ref-link">38 · Cryptographic Failures</a>
+            <a href="39-security-misconfiguration.md" target="_blank" class="ref-link">39 · Security Misconfiguration</a>
+            <a href="40-software-data-integrity-failures.md" target="_blank" class="ref-link">40 · Software &amp; Data Integrity Failures</a>
+            <a href="41-insecure-deserialization.md" target="_blank" class="ref-link">41 · Insecure Deserialization</a>
+            <a href="42-mass-assignment.md" target="_blank" class="ref-link">42 · Mass Assignment</a>
+          </div>
+        </section>
+
+        <!-- Cat 9: Availability & Monitoring -->
+        <section>
+          <h3 style="color:#74b9ff; margin-bottom:1rem;">🔷 Availability &amp; Monitoring</h3>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem 2.5rem; font-size:0.82em; text-align:left; max-width:820px; margin:0 auto;">
+            <a href="43-dos-ddos.md" target="_blank" class="ref-link">43 · DoS / DDoS</a>
+            <a href="44-security-logging-monitoring.md" target="_blank" class="ref-link">44 · Security Logging &amp; Monitoring</a>
+            <a href="45-insecure-design.md" target="_blank" class="ref-link">45 · Insecure Design</a>
+          </div>
+          <div style="margin-top:2rem; display:flex; gap:1.5rem; justify-content:center;">
+            <a href="README.md" target="_blank" style="color:#a78bfa; font-size:0.82em; opacity:0.8;">📋 README.md — Full overview</a>
+            <a href="AGENT.md" target="_blank" style="color:#34d399; font-size:0.82em; opacity:0.8;">🤖 AGENT.md — Audit runbook</a>
+          </div>
+        </section>
+
+      </section>
+
+      <!-- SECTION 15: Closing Slide -->
       <section class="close-slide">
         <h1>🔐 Stay Curious. Stay Secure.</h1>
         <div class="grid-3">
