@@ -1,0 +1,1722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JavaScript & Frontend Security — 45 Concepts</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/night.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11/styles/monokai.css">
+  <style>
+    :root {
+      --client-side: #ff6b6b;
+      --injection: #ffa500;
+      --cross-origin: #ffd700;
+      --auth: #56d364;
+      --transport: #58a6ff;
+      --headers: #a855f7;
+      --supply-chain: #8b949e;
+      --api-backend: #f59e0b;
+      --availability: #22d3ee;
+    }
+
+    html {
+      background: #0d1117;
+    }
+
+    body {
+      background: #0d1117;
+    }
+
+    .reveal {
+      background: #0d1117;
+      color: #c9d1d9;
+      font-family: 'Inter', 'system-ui', sans-serif;
+    }
+
+    .reveal h1, .reveal h2, .reveal h3, .reveal h4, .reveal h5, .reveal h6 {
+      font-family: 'Inter', 'system-ui', sans-serif;
+      text-transform: none;
+      color: #f0f6fc;
+    }
+
+    .reveal pre {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+      width: 100%;
+    }
+
+    .reveal code {
+      font-family: 'Fira Code', monospace;
+      padding: 2px 6px;
+      background: #161b22;
+      color: #79c0ff;
+      border-radius: 3px;
+    }
+
+    .reveal pre code {
+      padding: 0;
+      background: transparent;
+      color: #c9d1d9;
+    }
+
+    .reveal blockquote {
+      border-left: 4px solid currentColor;
+      padding-left: 1em;
+      margin: 1em 0;
+      font-style: italic;
+      color: #8b949e;
+    }
+
+    .reveal a {
+      color: var(--transport);
+      text-decoration: underline;
+    }
+
+    .reveal a:hover {
+      color: #79c0ff;
+    }
+
+    /* Section intro slides */
+    .section-intro {
+      background: radial-gradient(ellipse at center, rgba(79, 195, 247, 0.1) 0%, transparent 70%), #0d1117;
+    }
+
+    .section-intro.client-side {
+      background: radial-gradient(ellipse at center, rgba(255, 107, 107, 0.15) 0%, transparent 70%), #0d1117;
+    }
+
+    .section-intro.injection {
+      background: radial-gradient(ellipse at center, rgba(255, 165, 0, 0.15) 0%, transparent 70%), #0d1117;
+    }
+
+    .section-intro.cross-origin {
+      background: radial-gradient(ellipse at center, rgba(255, 215, 0, 0.15) 0%, transparent 70%), #0d1117;
+    }
+
+    .section-intro.auth {
+      background: radial-gradient(ellipse at center, rgba(86, 211, 100, 0.15) 0%, transparent 70%), #0d1117;
+    }
+
+    .section-intro.transport {
+      background: radial-gradient(ellipse at center, rgba(88, 166, 255, 0.15) 0%, transparent 70%), #0d1117;
+    }
+
+    .section-intro.headers {
+      background: radial-gradient(ellipse at center, rgba(168, 85, 247, 0.15) 0%, transparent 70%), #0d1117;
+    }
+
+    .section-intro.supply-chain {
+      background: radial-gradient(ellipse at center, rgba(139, 148, 158, 0.15) 0%, transparent 70%), #0d1117;
+    }
+
+    .section-intro.api-backend {
+      background: radial-gradient(ellipse at center, rgba(245, 158, 11, 0.15) 0%, transparent 70%), #0d1117;
+    }
+
+    .section-intro.availability {
+      background: radial-gradient(ellipse at center, rgba(34, 211, 238, 0.15) 0%, transparent 70%), #0d1117;
+    }
+
+    .section-emoji {
+      font-size: 4em;
+      margin-bottom: 0.5em;
+    }
+
+    .gradient-title {
+      background: linear-gradient(135deg, var(--accent-color), #f0f6fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-size: 3.5em;
+      font-weight: 700;
+      margin: 0.2em 0;
+    }
+
+    .section-intro blockquote {
+      color: #8b949e;
+      font-size: 1.2em;
+      margin: 1.5em 0;
+    }
+
+    .hint {
+      font-size: 0.9em;
+      color: #6e7681;
+      margin-top: 2em;
+    }
+
+    /* Cards and layout */
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5em;
+      margin: 2em 0;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5em;
+      margin: 1em 0;
+    }
+
+    .grid-5 {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1em;
+    }
+
+    .card {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-left: 4px solid var(--accent-color, #79c0ff);
+      padding: 1.5em;
+      border-radius: 6px;
+      font-size: 0.9em;
+    }
+
+    .card h4 {
+      margin-top: 0;
+      font-size: 1.1em;
+      color: #79c0ff;
+    }
+
+    .card code {
+      font-size: 0.85em;
+    }
+
+    /* Two-column layout */
+    .two-column {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2em;
+      margin: 1em 0;
+    }
+
+    .two-column > div:first-child {
+      text-align: left;
+    }
+
+    .two-column > div:last-child {
+      text-align: left;
+    }
+
+    /* Lists */
+    .reveal ul {
+      display: block;
+      margin: 1em 0;
+    }
+
+    .reveal li {
+      margin: 0.5em 0;
+      list-style: disc;
+    }
+
+    /* Fragments */
+    .fragment {
+      opacity: 0;
+    }
+
+    .fragment.visible {
+      opacity: 1;
+    }
+
+    /* Tables */
+    .reveal table {
+      background: #161b22;
+      border-collapse: collapse;
+      width: 100%;
+      margin: 1em 0;
+      font-size: 0.9em;
+    }
+
+    .reveal table td, .reveal table th {
+      border: 1px solid #30363d;
+      padding: 0.7em;
+      text-align: left;
+    }
+
+    .reveal table th {
+      background: #0d1117;
+      font-weight: 600;
+      color: #79c0ff;
+    }
+
+    .reveal table tr:nth-child(even) {
+      background: #0d111730;
+    }
+
+    /* Badge */
+    .owasp-badge {
+      display: inline-block;
+      background: #0969da;
+      color: white;
+      padding: 0.3em 0.8em;
+      border-radius: 20px;
+      font-size: 0.9em;
+      margin-right: 0.5em;
+      font-weight: 500;
+    }
+
+    /* Footer */
+    .reveal .slide-footer {
+      font-size: 0.6em;
+      color: #6e7681;
+    }
+
+    /* Title slide */
+    .reveal .slides > section:first-child {
+      background: linear-gradient(135deg, #0d1117, #161b22);
+    }
+
+    .title-slide h1 {
+      font-size: 3em;
+      margin-bottom: 0.3em;
+    }
+
+    .title-slide .subtitle {
+      font-size: 1.5em;
+      color: #8b949e;
+    }
+
+    .tags-row {
+      margin: 2em 0;
+      font-size: 0.9em;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1em;
+    }
+
+    .tag {
+      background: #161b22;
+      border: 1px solid #30363d;
+      padding: 0.5em 1em;
+      border-radius: 4px;
+      color: #79c0ff;
+    }
+
+    /* Checklist */
+    .checklist {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .checklist li:before {
+      content: "✓ ";
+      color: #56d364;
+      font-weight: bold;
+      margin-right: 0.5em;
+    }
+
+    /* Close slide */
+    .close-slide h1 {
+      font-size: 2.5em;
+      margin-bottom: 1.5em;
+    }
+
+    .close-slide .grid-3 {
+      text-align: left;
+    }
+
+    .close-slide h3 {
+      color: #79c0ff;
+      margin-top: 0;
+    }
+
+    .close-slide ul {
+      font-size: 0.9em;
+      margin: 0.5em 0;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .grid-3 { grid-template-columns: 1fr; }
+      .grid-5 { grid-template-columns: repeat(3, 1fr); }
+      .two-column { grid-template-columns: 1fr; }
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+      <!-- SECTION 1: Title Slide -->
+      <section class="title-slide">
+        <h1>🔐 JavaScript & Frontend Security</h1>
+        <p class="subtitle">A Complete Developer Reference — 45 Concepts Across 9 Categories</p>
+        <div class="tags-row">
+          <span class="tag">OWASP Top 10</span>
+          <span class="tag">XSS · CSRF · CORS</span>
+          <span class="tag">JWT · OAuth · OIDC</span>
+          <span class="tag">Supply Chain</span>
+          <span class="tag">CSP · HSTS · SRI</span>
+        </div>
+        <p class="hint" style="margin-top: 3em;">⬇ Down — dive into category · ➡ Right — next category · Space — advance</p>
+      </section>
+
+      <!-- SECTION 2: Overview Map -->
+      <section>
+        <h2>9 Security Categories</h2>
+        <div class="grid-3">
+          <div class="card fragment" style="--accent-color: #ff6b6b;">
+            <h4>🔴 Client-Side</h4>
+            <p>XSS, Clickjacking, DOM Clobbering, eval, Storage, ReDoS, Redirects</p>
+          </div>
+          <div class="card fragment" style="--accent-color: #ffa500;">
+            <h4>🟠 Injection</h4>
+            <p>SQL, NoSQL, Command, LDAP, Template/SSTI</p>
+          </div>
+          <div class="card fragment" style="--accent-color: #ffd700;">
+            <h4>🟡 Cross-Origin</h4>
+            <p>CSRF, CORS, SSRF</p>
+          </div>
+          <div class="card fragment" style="--accent-color: #56d364;">
+            <h4>🟢 Auth & Access</h4>
+            <p>Broken Access Control, Auth Failures, JWT, OAuth, Sessions, IDOR</p>
+          </div>
+          <div class="card fragment" style="--accent-color: #58a6ff;">
+            <h4>🔵 Transport</h4>
+            <p>HTTPS, HSTS, MitM, Cert Pinning, WebSockets</p>
+          </div>
+          <div class="card fragment" style="--accent-color: #a855f7;">
+            <h4>🟣 Headers</h4>
+            <p>CSP, Secure Cookies, Referrer Policy, Permissions, X-Content-Type-Options</p>
+          </div>
+          <div class="card fragment" style="--accent-color: #8b949e;">
+            <h4>⚫ Supply Chain</h4>
+            <p>Dependency Attacks, SRI, Outdated Components, Third-Party Scripts</p>
+          </div>
+          <div class="card fragment" style="--accent-color: #f59e0b;">
+            <h4>🔶 API & Backend</h4>
+            <p>Rate Limiting, Crypto Failures, Misconfiguration, Deserialization, Mass Assignment</p>
+          </div>
+          <div class="card fragment" style="--accent-color: #22d3ee;">
+            <h4>🔷 Availability</h4>
+            <p>DoS, Logging, Insecure Design, Monitoring</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 3: Client-Side Attack Vectors -->
+      <section>
+
+        <!-- 3.0: Section Intro -->
+        <section class="section-intro client-side">
+          <div class="section-emoji">🔴</div>
+          <h2 class="gradient-title" style="--accent-color: #ff6b6b;">Client-Side Attack Vectors</h2>
+          <blockquote style="border-left-color: #ff6b6b;">"The web browser is the most hostile software development environment imaginable." — Douglas Crockford</blockquote>
+          <ul style="margin-top: 2em; font-size: 1.2em;">
+            <li>01 — Cross-Site Scripting (XSS)</li>
+            <li>02 — Clickjacking</li>
+            <li>03 — Prototype Pollution</li>
+            <li>04–08 — DOM Clobbering, eval, Insecure Storage, ReDoS, Open Redirects</li>
+          </ul>
+          <p class="hint">⬇ Press down to explore concepts</p>
+        </section>
+
+        <!-- 3.1: XSS -->
+        <section>
+          <h2>01 — Cross-Site Scripting (XSS)</h2>
+          <div class="two-column">
+            <div>
+              <h3>Attack Types</h3>
+              <ul style="font-size: 1em;">
+                <li class="fragment"><strong>Stored</strong> — Attacker injects into database</li>
+                <li class="fragment"><strong>Reflected</strong> — Attacker tricks user to click malicious link</li>
+                <li class="fragment"><strong>DOM-based</strong> — JavaScript reads untrusted source</li>
+              </ul>
+              <h4 style="margin-top: 1.5em;">Attack Goals</h4>
+              <ul style="font-size: 0.95em;">
+                <li class="fragment">Steal session cookies / tokens</li>
+                <li class="fragment">Modify page content (phishing)</li>
+                <li class="fragment">Redirect to malware</li>
+                <li class="fragment">Deploy keylogger</li>
+              </ul>
+            </div>
+            <div>
+              <h3>Prevention Code</h3>
+              <pre><code class="language-javascript" data-trim data-line-numbers="1-5|7-10|12-15">// VULNERABLE: innerHTML
+elem.innerHTML = userInput;
+
+// SAFE: textContent
+elem.textContent = userInput;
+
+// SAFE: DOMPurify
+elem.innerHTML = DOMPurify.sanitize(userInput);
+
+// SAFE: createElement
+const p = document.createElement('p');
+p.textContent = userInput;
+container.appendChild(p);
+              </code></pre>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3.2: Clickjacking -->
+        <section>
+          <h2>02 — Clickjacking</h2>
+          <div class="two-column">
+            <div>
+              <h3>How It Works</h3>
+              <ol style="font-size: 1em;">
+                <li class="fragment">Attacker creates overlay with invisible iframe</li>
+                <li class="fragment">Positions sensitive button on top of invisible element</li>
+                <li class="fragment">User clicks, triggering unintended action</li>
+              </ol>
+              <h4 style="margin-top: 1.5em;">Variants</h4>
+              <ul style="font-size: 0.95em;">
+                <li class="fragment">UI redressing (fake buttons)</li>
+                <li class="fragment">Cursoring attacks (cursor overlay)</li>
+                <li class="fragment">Drag-to-iframe attacks</li>
+              </ul>
+            </div>
+            <div>
+              <h3>Defense Headers</h3>
+              <pre><code class="language-javascript" data-trim data-line-numbers="1-3|5-9|11-14">// X-Frame-Options
+response.setHeader('X-Frame-Options', 'DENY');
+
+// Content-Security-Policy (modern)
+response.setHeader(
+  'Content-Security-Policy',
+  "frame-ancestors 'none'"
+);
+
+// Helmet.js
+helmet.frameguard({ action: 'deny' });
+helmet.contentSecurityPolicy({
+  directives: { frameSrc: ["'none'"] }
+});
+              </code></pre>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3.3: Prototype Pollution -->
+        <section>
+          <h2>03 — Prototype Pollution</h2>
+          <div class="two-column">
+            <div>
+              <h3>Vulnerable Code</h3>
+              <pre><code class="language-javascript" data-trim data-line-numbers="1-10|12-15">// VULNERABLE: Deep merge
+function merge(target, source) {
+  for (let key in source) {
+    if (typeof source[key] === 'object') {
+      merge(target[key], source[key]);
+    } else {
+      target[key] = source[key];
+    }
+  }
+}
+
+// Attack: {"__proto__": {"isAdmin": true}}
+// Now every object has isAdmin = true!
+              </code></pre>
+            </div>
+            <div>
+              <h3>Secure Fixes</h3>
+              <pre><code class="language-javascript" data-trim data-line-numbers="1-5|7-12|14-19">// Fix 1: Use Object.freeze
+Object.freeze(Object.prototype);
+Object.freeze(Object);
+
+// Fix 2: Use Object.create(null)
+const target = Object.create(null);
+
+// Fix 3: Validate keys
+const whitelist = ['name', 'email'];
+for (let key in source) {
+  if (whitelist.includes(key)) {
+    target[key] = source[key];
+  }
+}
+
+// Fix 4: Use hasOwnProperty
+for (let key in source) {
+  if (source.hasOwnProperty(key)) {
+    target[key] = source[key];
+  }
+}
+              </code></pre>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3.4: More Client-Side Threats -->
+        <section>
+          <h2>04–08 — More Client-Side Threats</h2>
+          <div class="grid-5">
+            <div class="card fragment" style="--accent-color: #ff6b6b;">
+              <h4>DOM Clobbering</h4>
+              <p>Overwrite globals via HTML IDs:</p>
+              <pre><code class="language-html">&lt;img id="config"&gt;</code></pre>
+              <p style="font-size: 0.85em;">Now <code>config</code> is the img, not the object.</p>
+            </div>
+            <div class="card fragment" style="--accent-color: #ff6b6b;">
+              <h4>eval()</h4>
+              <p>Never execute untrusted code:</p>
+              <pre><code class="language-javascript">eval(userInput); // ❌ NEVER</code></pre>
+              <p style="font-size: 0.85em;">Use JSON.parse() or Function() with constraints.</p>
+            </div>
+            <div class="card fragment" style="--accent-color: #ff6b6b;">
+              <h4>Insecure Storage</h4>
+              <p>Never store secrets in localStorage:</p>
+              <pre><code class="language-javascript">localStorage.token // ❌</code></pre>
+              <p style="font-size: 0.85em;">Use HttpOnly cookies instead.</p>
+            </div>
+            <div class="card fragment" style="--accent-color: #ff6b6b;">
+              <h4>ReDoS</h4>
+              <p>Catastrophic backtracking:</p>
+              <pre><code class="language-javascript">/^(a+)+$/.test(userInput);</code></pre>
+              <p style="font-size: 0.85em;">Use regex timeouts or simpler patterns.</p>
+            </div>
+            <div class="card fragment" style="--accent-color: #ff6b6b;">
+              <h4>Open Redirects</h4>
+              <p>Validate redirect targets:</p>
+              <pre><code class="language-javascript">if (url.startsWith('/')) { // ✓ Safe
+  window.location = url;
+}</code></pre>
+            </div>
+          </div>
+        </section>
+
+      </section>
+
+      <!-- SECTION 4: Injection Attacks -->
+      <section>
+
+        <!-- 4.0: Section Intro -->
+        <section class="section-intro injection">
+          <div class="section-emoji">🟠</div>
+          <h2 class="gradient-title" style="--accent-color: #ffa500;">Injection Attacks</h2>
+          <blockquote style="border-left-color: #ffa500;">"All input is evil until proven otherwise." — Michael Howard, Writing Secure Code</blockquote>
+          <ul style="margin-top: 2em; font-size: 1.2em;">
+            <li>09 — SQL Injection</li>
+            <li>10–13 — NoSQL, Command, LDAP, Template/SSTI</li>
+          </ul>
+          <p class="hint">⬇ Press down to explore concepts</p>
+        </section>
+
+        <!-- 4.1: SQL Injection -->
+        <section>
+          <h2>09 — SQL Injection</h2>
+          <div class="two-column">
+            <div>
+              <h3>Vulnerable Pattern</h3>
+              <pre><code class="language-javascript" data-trim data-line-numbers="1-5|7-12">// VULNERABLE: String concatenation
+const query = "SELECT * FROM users WHERE id = " + userId;
+db.query(query);
+
+// Attack: userId = "1 OR 1=1"
+// Becomes: SELECT * FROM users WHERE id = 1 OR 1=1
+
+// Returns ALL users instead of one!
+              </code></pre>
+            </div>
+            <div>
+              <h3>Safe: Parameterized Queries</h3>
+              <pre><code class="language-javascript" data-trim data-line-numbers="1-10|12-17|19-23">// pg (PostgreSQL)
+const { rows } = await client.query(
+  'SELECT * FROM users WHERE id = $1',
+  [userId]
+);
+
+// mysql2 (MySQL)
+const [rows] = await connection.execute(
+  'SELECT * FROM users WHERE id = ?',
+  [userId]
+);
+
+// Prisma (ORM)
+const user = await prisma.user.findUnique({
+  where: { id: userId }
+});
+              </code></pre>
+            </div>
+          </div>
+        </section>
+
+        <!-- 4.2: More Injection Types -->
+        <section>
+          <h2>10–13 — More Injection Types</h2>
+          <div class="grid-2">
+            <div class="card fragment" style="--accent-color: #ffa500;">
+              <h4>NoSQL Injection</h4>
+              <p>MongoDB queries with untrusted input:</p>
+              <pre><code class="language-javascript">// VULNERABLE
+db.users.find({email: req.body.email});
+
+// Attack: {"$ne": null}
+// Returns all users!
+              </code></pre>
+            </div>
+            <div class="card fragment" style="--accent-color: #ffa500;">
+              <h4>Command Injection</h4>
+              <p>Executing shell commands:</p>
+              <pre><code class="language-javascript">// VULNERABLE
+exec(`ls ${directory}`);
+
+// Attack: directory = "; rm -rf /"
+              </code></pre>
+            </div>
+            <div class="card fragment" style="--accent-color: #ffa500;">
+              <h4>LDAP Injection</h4>
+              <p>LDAP query manipulation:</p>
+              <pre><code class="language-javascript">// VULNERABLE
+ldap.search({
+  filter: `(uid=${username})`
+});
+// Use escaping libraries
+              </code></pre>
+            </div>
+            <div class="card fragment" style="--accent-color: #ffa500;">
+              <h4>Template/SSTI</h4>
+              <p>Server-Side Template Injection:</p>
+              <pre><code class="language-javascript">// VULNERABLE
+template.compile(userTemplate);
+
+// Use sandboxed engines
+              </code></pre>
+            </div>
+          </div>
+        </section>
+
+      </section>
+
+      <!-- SECTION 5: Cross-Origin & Request Forgery -->
+      <section>
+
+        <!-- 5.0: Section Intro -->
+        <section class="section-intro cross-origin">
+          <div class="section-emoji">🟡</div>
+          <h2 class="gradient-title" style="--accent-color: #ffd700;">Cross-Origin & Request Forgery</h2>
+          <blockquote style="border-left-color: #ffd700;">"Security is only as strong as the weakest trust relationship."</blockquote>
+          <ul style="margin-top: 2em; font-size: 1.2em;">
+            <li>14 — CSRF (Cross-Site Request Forgery)</li>
+            <li>15 — CORS Misconfiguration</li>
+            <li>16 — SSRF (Server-Side Request Forgery)</li>
+          </ul>
+          <p class="hint">⬇ Press down to explore concepts</p>
+        </section>
+
+        <!-- 5.1: CSRF -->
+        <section>
+          <h2>14 — CSRF (Cross-Site Request Forgery)</h2>
+          <div class="two-column">
+            <div>
+              <h3>Attack Example</h3>
+              <pre><code class="language-html">&lt;!-- evil.com --&gt;
+&lt;form action="bank.com/transfer"
+      method="POST"&gt;
+  &lt;input name="to" value="attacker"&gt;
+  &lt;input name="amount" value="1000"&gt;
+&lt;/form&gt;
+&lt;script&gt;
+  document.forms[0].submit();
+&lt;/script&gt;
+              </code></pre>
+              <p style="margin-top: 1em; font-size: 0.95em;">User's cookies sent automatically!</p>
+            </div>
+            <div>
+              <h3>Defenses</h3>
+              <pre><code class="language-javascript" data-trim data-line-numbers="1-5|7-15|17-22">// 1. CSRF Token (csurf)
+const csrf = require('csurf');
+app.use(csrf());
+app.post('/transfer', (req, res) => {
+  if (!req.csrfToken()) fail();
+});
+
+// 2. SameSite Cookies
+response.setHeader(
+  'Set-Cookie',
+  'session=abc; SameSite=Strict; HttpOnly'
+);
+
+// 3. Origin Header Check
+if (req.headers.origin !== 'https://bank.com') {
+  return res.status(403).send('Forbidden');
+}
+              </code></pre>
+            </div>
+          </div>
+        </section>
+
+        <!-- 5.2: CORS Misconfiguration -->
+        <section>
+          <h2>15 — CORS Misconfiguration</h2>
+          <div class="two-column">
+            <div>
+              <h3>Dangerous Patterns</h3>
+              <pre><code class="language-javascript" data-trim data-line-numbers="1-7|9-14|16-20">// ❌ DANGEROUS: Wildcard + Credentials
+app.use(cors({
+  origin: '*',
+  credentials: true
+}));
+
+// ❌ DANGEROUS: Blindly Reflect Origin
+app.use(cors({
+  origin: req.headers.origin,
+  credentials: true
+}));
+
+// ❌ DANGEROUS: Allow null origin
+app.use(cors({
+  origin: ['null', 'https://app.com']
+}));
+              </code></pre>
+            </div>
+            <div>
+              <h3>Secure Allowlist</h3>
+              <pre><code class="language-javascript" data-trim data-line-numbers="1-20">const allowedOrigins = [
+  'https://app.com',
+  'https://app-staging.com'
+];
+
+app.use(cors({
+  origin: (origin, cb) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST'],
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization'
+  ]
+}));
+              </code></pre>
+            </div>
+          </div>
+        </section>
+
+        <!-- 5.3: SSRF -->
+        <section>
+          <h2>16 — SSRF (Server-Side Request Forgery)</h2>
+          <div class="two-column">
+            <div>
+              <h3>High-Value SSRF Targets</h3>
+              <ul style="font-size: 0.95em;">
+                <li class="fragment"><strong>AWS Metadata:</strong> <code>169.254.169.254:80</code></li>
+                <li class="fragment"><strong>Localhost Services:</strong> <code>localhost:8080</code>, <code>localhost:3000</code></li>
+                <li class="fragment"><strong>Cloud Metadata:</strong> Google Cloud, Azure Instance Metadata</li>
+                <li class="fragment"><strong>Internal APIs:</strong> Admin panels, internal databases</li>
+                <li class="fragment"><strong>Webhooks:</strong> File upload callbacks</li>
+              </ul>
+            </div>
+            <div>
+              <h3>Safe Fetching</h3>
+              <pre><code class="language-javascript" data-trim data-line-numbers="1-15|17-25">// VULNERABLE: No validation
+const img = await fetch(req.body.url);
+
+// DNS Rebinding Attack:
+// First lookup: trusted IP
+// Second lookup: 127.0.0.1 (TOCTOU)
+
+// SAFE: Allowlist + DNS validation
+const allowedHosts = new Set([
+  'images.example.com',
+  'cdn.example.com'
+]);
+
+const url = new URL(userUrl);
+if (!allowedHosts.has(url.hostname)) {
+  throw new Error('Not allowed');
+}
+
+// Prevent DNS rebinding
+const dns = require('dns').promises;
+const addr = await dns.resolve4(url.hostname);
+if (addr[0].startsWith('127.') ||
+    addr[0].startsWith('169.254.')) {
+  throw new Error('Private IP not allowed');
+}
+              </code></pre>
+            </div>
+          </div>
+        </section>
+
+      </section>
+
+      <!-- SECTION 6: Authentication & Authorization -->
+      <section>
+
+        <!-- 6.0: Section Intro -->
+        <section class="section-intro auth">
+          <div class="section-emoji">🟢</div>
+          <h2 class="gradient-title" style="--accent-color: #56d364;">Authentication & Authorization</h2>
+          <blockquote style="border-left-color: #56d364;">"Attackers don't break in — they log in." — CrowdStrike</blockquote>
+          <ul style="margin-top: 2em; font-size: 1.2em;">
+            <li>17 — Broken Access Control (OWASP #1)</li>
+            <li>18 — Authentication Failures</li>
+            <li>19 — JWT Security</li>
+            <li>20–22 — OAuth, Sessions & IDOR</li>
+          </ul>
+          <p class="hint">⬇ Press down to explore concepts</p>
+        </section>
+
+        <!-- 6.1: Broken Access Control -->
+        <section>
+          <h2>17 — Broken Access Control (OWASP #1)</h2>
+          <div class="two-column">
+            <div>
+              <h3>Common Failures</h3>
+              <ul style="font-size: 1em;">
+                <li class="fragment">Missing authorization checks</li>
+                <li class="fragment">Assuming authentication = authorization</li>
+                <li class="fragment">Testing with admin account only</li>
+                <li class="fragment">Insecure direct object references (IDOR)</li>
+                <li class="fragment">Horizontal privilege escalation</li>
+                <li class="fragment">User ID in URL/JWT without validation</li>
+              </ul>
+            </div>
+            <div>
+              <h3>Secure Implementation</h3>
+              <pre><code class="language-javascript" data-trim data-line-numbers="1-10|12-20">// BAD: Trust JWT decode
+const user = jwt_decode(token);
+const data = await db.getData(user.id);
+
+// GOOD: Middleware verification
+const authMiddleware = (req, res, next) => {
+  const verified = verifyJWT(req.token);
+  req.user = verified;
+  next();
+};
+
+// GOOD: Role checking
+const requireRole = (roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return res.status(403).send('Forbidden');
+    }
+    next();
+  };
+};
+
+app.get('/admin', requireRole(['admin']), handler);
+              </code></pre>
+            </div>
+          </div>
+        </section>
+
+        <!-- 6.2: Authentication Failures -->
+        <section>
+          <h2>18 — Authentication Failures</h2>
+          <div class="two-column">
+            <div>
+              <h3>What Goes Wrong</h3>
+              <ul style="font-size: 0.95em;">
+                <li class="fragment">Weak password requirements</li>
+                <li class="fragment">No rate limiting on login</li>
+                <li class="fragment">Passwords visible in logs</li>
+                <li class="fragment">Plaintext password storage</li>
+                <li class="fragment">No 2FA for critical accounts</li>
+                <li class="fragment">Session fixation (no regenerate)</li>
+                <li class="fragment">Hardcoded credentials</li>
+              </ul>
+            </div>
+            <div>
+              <h3>Best Practices</h3>
+              <pre><code class="language-javascript" data-trim data-line-numbers="1-12|14-20|22-25">// Password Hashing: bcrypt
+const bcrypt = require('bcrypt');
+const hash = await bcrypt.hash(password, 12);
+const match = await bcrypt.compare(
+  password,
+  hash
+);
+
+// TOTP (Two-Factor)
+const speakeasy = require('speakeasy');
+const secret = speakeasy.generateSecret();
+const verified = speakeasy.totp.verify({
+  secret: secret.base32,
+  encoding: 'base32',
+  token: userToken
+});
+
+// Check if password breached
+const pwnedPassword =
+  require('hibp').search(password);
+              </code></pre>
+            </div>
+          </div>
+        </section>
+
+        <!-- 6.3: JWT Security -->
+        <section>
+          <h2>19 — JWT Security</h2>
+          <div class="two-column">
+            <div>
+              <h3>Dangerous Patterns</h3>
+              <pre><code class="language-javascript" data-trim data-line-numbers="1-6|8-13|15-19">// ❌ alg: none attack
+const payload = jwt_decode(token);
+// Header: {"alg": "none"}
+// Attacker can modify payload!
+
+// ❌ RS256 → HS256 confusion
+// Server uses RS256 (asymmetric)
+// Attacker sends HS256 (symmetric)
+// Uses public key as HMAC secret!
+
+// ❌ Weak secret
+jwt.sign(payload, 'secret');
+// Should be 256+ bit random
+              </code></pre>
+            </div>
+            <div>
+              <h3>Secure Implementation</h3>
+              <pre><code class="language-javascript" data-trim data-line-numbers="1-15|17-27|29-33">// SIGN: Specify algorithm explicitly
+const token = jwt.sign(
+  { userId: user.id, role: user.role },
+  process.env.JWT_SECRET,
+  {
+    algorithm: 'HS256',
+    expiresIn: '15m',
+    issuer: 'app.com'
+  }
+);
+
+// VERIFY: Restrict allowed algorithms
+const verified = jwt.verify(
+  token,
+  process.env.JWT_SECRET,
+  {
+    algorithms: ['HS256'],
+    issuer: 'app.com'
+  }
+);
+
+// STORE: HttpOnly cookie (not localStorage)
+res.cookie('jwt', token, {
+  httpOnly: true,
+  secure: true,
+  sameSite: 'strict',
+  maxAge: 15 * 60 * 1000
+});
+              </code></pre>
+            </div>
+          </div>
+        </section>
+
+        <!-- 6.4: OAuth, Sessions & IDOR -->
+        <section>
+          <h2>20–22 — OAuth, Sessions & IDOR</h2>
+          <div class="two-column">
+            <div>
+              <h3>OAuth PKCE Checklist</h3>
+              <div class="card" style="--accent-color: #56d364;">
+                <ul style="font-size: 0.9em; margin: 0;">
+                  <li class="fragment">Generate code_verifier (43-128 chars)</li>
+                  <li class="fragment">Create code_challenge = SHA256(verifier)</li>
+                  <li class="fragment">Send code_challenge in auth request</li>
+                  <li class="fragment">Exchange code + verifier for token</li>
+                  <li class="fragment">Never hardcode client_secret in SPA</li>
+                </ul>
+              </div>
+              <h4 style="margin-top: 1.5em;">IDOR Prevention</h4>
+              <pre><code class="language-javascript" data-trim data-line-numbers="1-8">// Check ownership
+app.get('/posts/:id', async (req, res) => {
+  const post = await Post.findById(req.params.id);
+  if (post.userId !== req.user.id) {
+    return res.status(403).send('Not yours');
+  }
+  res.json(post);
+});
+              </code></pre>
+            </div>
+            <div>
+              <h3>Secure Sessions</h3>
+              <pre><code class="language-javascript" data-trim data-line-numbers="1-20">// express-session + secure store
+const session = require('express-session');
+const RedisStore = require('connect-redis');
+
+app.use(session({
+  store: new RedisStore({ client: redis }),
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: true,     // HTTPS only
+    httpOnly: true,   // No JS access
+    sameSite: 'strict',
+    maxAge: 24 * 60 * 60 * 1000
+  }
+}));
+
+// Regenerate on login (prevent fixation)
+req.session.regenerate((err) => {
+  req.session.userId = user.id;
+  res.redirect('/dashboard');
+});
+
+// Destroy on logout
+req.session.destroy();
+              </code></pre>
+            </div>
+          </div>
+        </section>
+
+      </section>
+
+      <!-- SECTION 7: Transport & Network Security -->
+      <section>
+
+        <!-- 7.0: Section Intro -->
+        <section class="section-intro transport">
+          <div class="section-emoji">🔵</div>
+          <h2 class="gradient-title" style="--accent-color: #58a6ff;">Transport & Network Security</h2>
+          <blockquote style="border-left-color: #58a6ff;">"Privacy is not an option, and it shouldn't be the price we accept for just getting on the internet." — Gary Kovacs</blockquote>
+          <ul style="margin-top: 2em; font-size: 1.2em;">
+            <li>23 — HTTPS & TLS</li>
+            <li>24 — HSTS</li>
+            <li>25 — Man-in-the-Middle</li>
+            <li>26 — Certificate Pinning</li>
+            <li>27 — WebSocket Security</li>
+          </ul>
+          <p class="hint">⬇ Press down to explore concepts</p>
+        </section>
+
+        <!-- 7.1: Transport Security (Cards) -->
+        <section>
+          <h2>23–27 — Transport Security Concepts</h2>
+          <div class="grid-5">
+            <div class="card fragment" style="--accent-color: #58a6ff;">
+              <h4>HTTPS & TLS</h4>
+              <p>Encrypt all data in transit. Use TLS 1.2+.</p>
+              <pre><code class="language-bash">npm install helmet</code></pre>
+            </div>
+            <div class="card fragment" style="--accent-color: #58a6ff;">
+              <h4>HSTS</h4>
+              <p>Force HTTPS-only connections:</p>
+              <pre><code class="language-javascript">helmet.hsts({
+  maxAge: 31536000
+});</code></pre>
+            </div>
+            <div class="card fragment" style="--accent-color: #58a6ff;">
+              <h4>Man-in-the-Middle</h4>
+              <p>Attacker intercepts unencrypted traffic. Use HTTPS + HSTS.</p>
+            </div>
+            <div class="card fragment" style="--accent-color: #58a6ff;">
+              <h4>Cert Pinning</h4>
+              <p>Pin certificate hash for critical APIs.</p>
+              <pre><code class="language-bash">npm install hpkp</code></pre>
+            </div>
+            <div class="card fragment" style="--accent-color: #58a6ff;">
+              <h4>WebSocket Sec</h4>
+              <p>Verify origin & authenticate first message:</p>
+              <pre><code class="language-javascript">const verifyClient = (info) => {
+  return info.origin === 'https://app.com';
+};</code></pre>
+            </div>
+          </div>
+        </section>
+
+      </section>
+
+      <!-- SECTION 8: HTTP Security Headers -->
+      <section>
+
+        <!-- 8.0: Section Intro -->
+        <section class="section-intro headers">
+          <div class="section-emoji">🟣</div>
+          <h2 class="gradient-title" style="--accent-color: #a855f7;">HTTP Security Headers</h2>
+          <blockquote style="border-left-color: #a855f7;">"Defense in depth: never rely on a single safeguard. Layer your defenses."</blockquote>
+          <ul style="margin-top: 2em; font-size: 1.2em;">
+            <li>28 — Content Security Policy (CSP)</li>
+            <li>29–32 — Secure Cookies, Referrer Policy, Permissions Policy, X-Content-Type-Options</li>
+          </ul>
+          <p class="hint">⬇ Press down to explore concepts</p>
+        </section>
+
+        <!-- 8.1: CSP -->
+        <section>
+          <h2>28 — Content Security Policy (CSP)</h2>
+          <div class="two-column">
+            <div>
+              <h3>Key Directives</h3>
+              <pre><code class="language-bash" data-trim data-line-numbers="1-14">default-src 'self'
+script-src 'self' 'nonce-{random}'
+style-src 'self' 'nonce-{random}'
+img-src 'self' https:
+font-src 'self' fonts.googleapis.com
+connect-src 'self' api.example.com
+frame-ancestors 'none'
+form-action 'self'
+base-uri 'self'
+object-src 'none'
+require-sri-for script style
+upgrade-insecure-requests
+              </code></pre>
+            </div>
+            <div>
+              <h3>Helmet.js Implementation</h3>
+              <pre><code class="language-javascript" data-trim data-line-numbers="1-30">// Generate nonce
+const crypto = require('crypto');
+const nonce = crypto.randomBytes(16)
+  .toString('base64');
+
+// CSP with Helmet
+helmet.contentSecurityPolicy({
+  directives: {
+    defaultSrc: ["'self'"],
+    scriptSrc: ["'self'", `'nonce-${nonce}'`],
+    styleSrc: ["'self'", `'nonce-${nonce}'`],
+    imgSrc: ["'self'", 'https:'],
+    fontSrc: ["'self'", 'fonts.googleapis.com'],
+    connectSrc: ["'self'", 'api.example.com'],
+    frameAncestors: ["'none'"],
+    formAction: ["'self'"],
+    baseUri: ["'self'"],
+    objectSrc: ["'none'"],
+    requireSriFor: ['script', 'style'],
+    upgradeInsecureRequests: []
+  }
+});
+
+// Inject nonce into template
+app.get('/', (req, res) => {
+  const nonce = crypto.randomBytes(16)
+    .toString('base64');
+  res.render('index', { nonce });
+});
+              </code></pre>
+            </div>
+          </div>
+        </section>
+
+        <!-- 8.2: More Security Headers -->
+        <section>
+          <h2>29–32 — More Security Headers</h2>
+          <div class="grid-2">
+            <div class="card fragment" style="--accent-color: #a855f7;">
+              <h4>Secure Cookies</h4>
+              <pre><code class="language-javascript">Set-Cookie:
+  sessionId=abc123;
+  Secure;
+  HttpOnly;
+  SameSite=Strict;
+  Path=/;
+  Max-Age=3600
+              </code></pre>
+            </div>
+            <div class="card fragment" style="--accent-color: #a855f7;">
+              <h4>Referrer Policy</h4>
+              <pre><code class="language-javascript">helmet.referrerPolicy({
+  policy: 'strict-origin-when-cross-origin'
+});
+// Don't leak URLs to 3rd parties
+              </code></pre>
+            </div>
+            <div class="card fragment" style="--accent-color: #a855f7;">
+              <h4>Permissions Policy</h4>
+              <pre><code class="language-javascript">helmet.permissionsPolicy({
+  features: {
+    geolocation: ['self'],
+    microphone: [],
+    camera: []
+  }
+});
+              </code></pre>
+            </div>
+            <div class="card fragment" style="--accent-color: #a855f7;">
+              <h4>X-Content-Type-Options</h4>
+              <pre><code class="language-javascript">helmet.noSniff();
+// Prevent MIME type sniffing
+// X-Content-Type-Options: nosniff
+              </code></pre>
+            </div>
+          </div>
+        </section>
+
+      </section>
+
+      <!-- SECTION 9: Supply Chain & Dependencies -->
+      <section>
+
+        <!-- 9.0: Section Intro -->
+        <section class="section-intro supply-chain">
+          <div class="section-emoji">⚫</div>
+          <h2 class="gradient-title" style="--accent-color: #8b949e;">Supply Chain & Dependencies</h2>
+          <blockquote style="border-left-color: #8b949e;">"You are only as secure as your least secure dependency."</blockquote>
+          <ul style="margin-top: 2em; font-size: 1.2em;">
+            <li>33 — Supply Chain Attacks</li>
+            <li>34 — Subresource Integrity (SRI)</li>
+            <li>35 & 36 — Outdated Components & Third-Party Scripts</li>
+          </ul>
+          <p class="hint">⬇ Press down to explore concepts</p>
+        </section>
+
+        <!-- 9.1: Supply Chain Attacks -->
+        <section>
+          <h2>33 — Supply Chain Attacks</h2>
+          <div class="two-column">
+            <div>
+              <h3>Incidents Table</h3>
+              <table style="font-size: 0.85em;">
+                <tr class="fragment">
+                  <th>Year</th>
+                  <th>Package</th>
+                  <th>Impact</th>
+                </tr>
+                <tr class="fragment">
+                  <td>2018</td>
+                  <td>event-stream</td>
+                  <td>Cryptocurrency miner</td>
+                </tr>
+                <tr class="fragment">
+                  <td>2022</td>
+                  <td>colors/faker</td>
+                  <td>Dependency bomb</td>
+                </tr>
+                <tr class="fragment">
+                  <td>2024</td>
+                  <td>polyfill.io</td>
+                  <td>XSS injection</td>
+                </tr>
+                <tr class="fragment">
+                  <td>2025</td>
+                  <td>chalk/debug</td>
+                  <td>Backdoor</td>
+                </tr>
+              </table>
+            </div>
+            <div>
+              <h3>Defense Commands</h3>
+              <pre><code class="language-bash" data-trim data-line-numbers="1-5|7-10|12-15|17-20"># Audit installed packages
+npm audit
+npm audit fix
+
+# Lock file strategy
+npm ci  # Use package-lock.json
+git commit package-lock.json
+
+# Dependabot monitoring
+# Enable on GitHub repo
+# Get security alerts
+
+# Disable scripts (risky)
+npm install --ignore-scripts
+npm config set ignore-scripts true
+              </code></pre>
+            </div>
+          </div>
+        </section>
+
+        <!-- 9.2: Subresource Integrity (SRI) -->
+        <section>
+          <h2>34 — Subresource Integrity (SRI)</h2>
+          <div class="two-column">
+            <div>
+              <h3>How SRI Works</h3>
+              <ol style="font-size: 0.95em;">
+                <li class="fragment">Compute SHA-384 hash of JS/CSS file</li>
+                <li class="fragment">Browser computes hash of downloaded file</li>
+                <li class="fragment">Hashes don't match → block execution</li>
+                <li class="fragment">Protects against CDN compromise</li>
+              </ol>
+              <h4 style="margin-top: 1.5em;">Generate Hash</h4>
+              <pre><code class="language-bash">openssl dgst -sha384 -binary \
+  script.js | openssl base64
+              </code></pre>
+            </div>
+            <div>
+              <h3>HTML Implementation</h3>
+              <pre><code class="language-html" data-trim data-line-numbers="1-10|12-16">&lt;script src="https://cdn.example.com/lib.js"
+  integrity="sha384-abc123..."
+  crossorigin="anonymous"&gt;
+&lt;/script&gt;
+
+&lt;link rel="stylesheet"
+  href="https://cdn.example.com/style.css"
+  integrity="sha384-def456..."
+  crossorigin="anonymous"&gt;
+
+/* CSP require SRI */
+Content-Security-Policy:
+  require-sri-for script style
+              </code></pre>
+            </div>
+          </div>
+        </section>
+
+        <!-- 9.3: Outdated & Third-Party Scripts -->
+        <section>
+          <h2>35 & 36 — Outdated Components & Third-Party Scripts</h2>
+          <div class="two-column">
+            <div>
+              <h3>Dependency Management</h3>
+              <pre><code class="language-bash" data-trim data-line-numbers="1-10|12-15"># Check for vulnerabilities
+npm audit
+npm audit --fix
+
+# Use Snyk for deeper scanning
+npx snyk test
+
+# Enable Dependabot on GitHub
+# Auto-creates PRs for updates
+
+# Manual update strategy
+npm outdated  # Show outdated packages
+npm update    # Update within constraints
+              </code></pre>
+              <p style="margin-top: 1em; font-size: 0.9em;"><strong>Note:</strong> Dependabot is integrated into GitHub. Enable alerts in repository settings.</p>
+            </div>
+            <div>
+              <h3>Sandboxing Third-Party</h3>
+              <pre><code class="language-html" data-trim data-line-numbers="1-10|12-20">&lt;!-- SRI: Protect script --&gt;
+&lt;script src="https://ad-provider.com/ad.js"
+  integrity="sha384-xyz..."
+  crossorigin="anonymous"
+  sandbox=""&gt;
+&lt;/script&gt;
+
+&lt;!-- Sandboxed iframe for 3rd party --&gt;
+&lt;iframe
+  src="https://widget.example.com"
+  sandbox="allow-same-origin allow-scripts"
+  allow="geolocation 'none';
+         camera 'none';
+         microphone 'none'"
+  title="Third-party widget"&gt;
+&lt;/iframe&gt;
+
+&lt;!-- Limit permission via Permissions Policy --&gt;
+              </code></pre>
+            </div>
+          </div>
+        </section>
+
+      </section>
+
+      <!-- SECTION 10: API & Backend Security -->
+      <section>
+
+        <!-- 10.0: Section Intro -->
+        <section class="section-intro api-backend">
+          <div class="section-emoji">🔶</div>
+          <h2 class="gradient-title" style="--accent-color: #f59e0b;">API & Backend Security</h2>
+          <blockquote style="border-left-color: #f59e0b;">"The data you don't validate is the data that will be your undoing."</blockquote>
+          <ul style="margin-top: 2em; font-size: 1.2em;">
+            <li>37 — API Security & Rate Limiting</li>
+            <li>38–42 — Crypto Failures, Misconfiguration, Integrity, Deserialization, Mass Assignment</li>
+          </ul>
+          <p class="hint">⬇ Press down to explore concepts</p>
+        </section>
+
+        <!-- 10.1: API Security & Rate Limiting -->
+        <section>
+          <h2>37 — API Security & Rate Limiting</h2>
+          <div class="two-column">
+            <div>
+              <h3>Attack Types</h3>
+              <ul style="font-size: 0.95em;">
+                <li class="fragment">Brute force login</li>
+                <li class="fragment">Password reset spam</li>
+                <li class="fragment">API abuse / scraping</li>
+                <li class="fragment">DDoS amplification</li>
+                <li class="fragment">Enumeration attacks</li>
+              </ul>
+            </div>
+            <div>
+              <h3>Rate Limiting Code</h3>
+              <pre><code class="language-javascript" data-trim data-line-numbers="1-20|22-35">// General rate limiter
+const rateLimit = require('express-rate-limit');
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,  // 15 min
+  max: 100,                   // 100 requests
+  message: 'Too many requests',
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+app.use(limiter);
+
+// Strict auth limiter
+const authLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 5,  // 5 attempts per minute
+  skipSuccessfulRequests: true
+});
+
+app.post('/login', authLimiter, async (req, res) => {
+  // Validate input with Zod
+  const schema = z.object({
+    email: z.string().email(),
+    password: z.string().min(8)
+  });
+
+  const parsed = schema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json(parsed.error);
+  }
+  // Handle login...
+});
+              </code></pre>
+            </div>
+          </div>
+        </section>
+
+        <!-- 10.2: Backend Security Concepts -->
+        <section>
+          <h2>38–42 — Backend Security Concepts</h2>
+          <div class="grid-5">
+            <div class="card fragment" style="--accent-color: #f59e0b;">
+              <h4>Crypto Failures</h4>
+              <p>Use TLS, bcrypt passwords, OWASP-recommended algorithms.</p>
+            </div>
+            <div class="card fragment" style="--accent-color: #f59e0b;">
+              <h4>Misconfiguration</h4>
+              <p>Disable debug mode, remove default credentials, minimal permissions.</p>
+            </div>
+            <div class="card fragment" style="--accent-color: #f59e0b;">
+              <h4>Software Integrity</h4>
+              <p>Sign binaries, verify checksums, monitor dependencies.</p>
+            </div>
+            <div class="card fragment" style="--accent-color: #f59e0b;">
+              <h4>Insecure Deserialization</h4>
+              <pre><code class="language-javascript">// VULNERABLE
+const obj = JSON.parse(untrusted);
+
+// Use allowlist
+const obj = JSON.parse(untrusted, (k, v) => {
+  if (!allowed.includes(k)) return undefined;
+  return v;
+});
+              </code></pre>
+            </div>
+            <div class="card fragment" style="--accent-color: #f59e0b;">
+              <h4>Mass Assignment</h4>
+              <pre><code class="language-javascript">// VULNERABLE
+Object.assign(user, req.body);
+
+// SAFE: Whitelist
+const { name, email } = req.body;
+user.name = name;
+user.email = email;
+              </code></pre>
+            </div>
+          </div>
+        </section>
+
+      </section>
+
+      <!-- SECTION 11: Availability & Monitoring -->
+      <section>
+
+        <!-- 11.0: Section Intro -->
+        <section class="section-intro availability">
+          <div class="section-emoji">🔷</div>
+          <h2 class="gradient-title" style="--accent-color: #22d3ee;">Availability & Monitoring</h2>
+          <blockquote style="border-left-color: #22d3ee;">"If you're not monitoring it, you don't own it — your attacker does."</blockquote>
+          <ul style="margin-top: 2em; font-size: 1.2em;">
+            <li>43 — DoS & Rate Limiting</li>
+            <li>44 — Logging & Auditing</li>
+            <li>45 — Insecure Design & STRIDE</li>
+          </ul>
+          <p class="hint">⬇ Press down to explore concepts</p>
+        </section>
+
+        <!-- 11.1: Availability & Design -->
+        <section>
+          <h2>43–45 — Availability & Design</h2>
+          <div class="two-column">
+            <div>
+              <h3>DoS Prevention</h3>
+              <div class="card" style="--accent-color: #22d3ee; margin-bottom: 1em;">
+                <h4>Body Size Limit</h4>
+                <pre><code class="language-javascript">app.use(express.json({
+  limit: '10kb'
+}));
+                </code></pre>
+              </div>
+              <div class="card" style="--accent-color: #22d3ee;">
+                <h4>Request Timeout</h4>
+                <pre><code class="language-javascript" data-trim data-line-numbers="1-6">server.setTimeout(30000);
+
+app.use((req, res, next) => {
+  req.setTimeout(5000);
+  next();
+});
+                </code></pre>
+              </div>
+            </div>
+            <div>
+              <h3>Logging & STRIDE</h3>
+              <div class="card" style="--accent-color: #22d3ee; margin-bottom: 1em;">
+                <h4>What to Log</h4>
+                <ul style="font-size: 0.85em; margin: 0;">
+                  <li class="fragment">Authentication events (login, logout, 2FA)</li>
+                  <li class="fragment">Authorization failures</li>
+                  <li class="fragment">Security exceptions</li>
+                  <li class="fragment">Admin actions</li>
+                </ul>
+              </div>
+              <div class="card" style="--accent-color: #22d3ee;">
+                <h4>Never Log</h4>
+                <ul style="font-size: 0.85em; margin: 0;">
+                  <li class="fragment">Passwords, tokens, API keys</li>
+                  <li class="fragment">Credit card numbers</li>
+                  <li class="fragment">PII without good reason</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </section>
+
+      <!-- SECTION 12: OWASP Top 10 Reference -->
+      <section>
+        <h2>OWASP Top 10:2021 Quick Reference</h2>
+        <table style="font-size: 0.9em;">
+          <tr>
+            <th>Rank</th>
+            <th>Vulnerability</th>
+            <th>Rank</th>
+            <th>Vulnerability</th>
+          </tr>
+          <tr class="fragment">
+            <td><span class="owasp-badge">A01</span></td>
+            <td>Broken Access Control</td>
+            <td><span class="owasp-badge">A06</span></td>
+            <td>Vulnerable & Outdated Components</td>
+          </tr>
+          <tr class="fragment">
+            <td><span class="owasp-badge">A02</span></td>
+            <td>Cryptographic Failures</td>
+            <td><span class="owasp-badge">A07</span></td>
+            <td>Authentication Failures</td>
+          </tr>
+          <tr class="fragment">
+            <td><span class="owasp-badge">A03</span></td>
+            <td>Injection</td>
+            <td><span class="owasp-badge">A08</span></td>
+            <td>Software & Data Integrity Failures</td>
+          </tr>
+          <tr class="fragment">
+            <td><span class="owasp-badge">A04</span></td>
+            <td>Insecure Design</td>
+            <td><span class="owasp-badge">A09</span></td>
+            <td>Logging & Monitoring Failures</td>
+          </tr>
+          <tr class="fragment">
+            <td><span class="owasp-badge">A05</span></td>
+            <td>Security Misconfiguration</td>
+            <td><span class="owasp-badge">A10</span></td>
+            <td>SSRF</td>
+          </tr>
+        </table>
+        <h3 style="margin-top: 2em;">Essential npm Packages</h3>
+        <pre><code class="language-bash" data-trim data-line-numbers="1-20">npm install express helmet
+npm install express-rate-limit
+npm install jsonwebtoken bcrypt
+npm install express-session connect-redis
+npm install dompurify
+npm install zod
+npm install dotenv
+npm install cors
+npm install snyk
+npm install npm-audit
+        </code></pre>
+      </section>
+
+      <!-- SECTION 13: Security Checklist -->
+      <section>
+        <h2>Security Checklist</h2>
+        <div class="grid-3">
+          <div>
+            <h3>Client-Side</h3>
+            <ul class="checklist">
+              <li class="fragment">XSS: Sanitize all user input</li>
+              <li class="fragment">CSP: Implement Content-Security-Policy</li>
+              <li class="fragment">SRI: Use integrity attributes</li>
+              <li class="fragment">DOM: No innerHTML with user data</li>
+              <li class="fragment">Storage: Use HttpOnly cookies</li>
+              <li class="fragment">Regex: Avoid ReDoS patterns</li>
+            </ul>
+          </div>
+          <div>
+            <h3>Auth & API</h3>
+            <ul class="checklist">
+              <li class="fragment">JWT: Verify algorithm</li>
+              <li class="fragment">Passwords: Hash with bcrypt</li>
+              <li class="fragment">CSRF: Use tokens or SameSite</li>
+              <li class="fragment">Rate Limit: Protect endpoints</li>
+              <li class="fragment">CORS: Allowlist origins</li>
+              <li class="fragment">IDOR: Check ownership</li>
+            </ul>
+          </div>
+          <div>
+            <h3>Transport & Ops</h3>
+            <ul class="checklist">
+              <li class="fragment">HTTPS: Always use TLS 1.2+</li>
+              <li class="fragment">HSTS: Force HTTPS redirect</li>
+              <li class="fragment">Headers: Use Helmet.js</li>
+              <li class="fragment">Secrets: Use environment vars</li>
+              <li class="fragment">Audit: Run npm audit</li>
+              <li class="fragment">Logging: Monitor for attacks</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 14: Closing Slide -->
+      <section class="close-slide">
+        <h1>🔐 Stay Curious. Stay Secure.</h1>
+        <div class="grid-3">
+          <div>
+            <h3>Research Further</h3>
+            <ul style="font-size: 0.95em;">
+              <li><a href="https://owasp.org" target="_blank">OWASP</a></li>
+              <li><a href="https://portswigger.net/web-security" target="_blank">PortSwigger Web Security</a></li>
+              <li><a href="https://developer.mozilla.org/en-US/docs/Web/Security" target="_blank">MDN Security</a></li>
+              <li><a href="https://cwe.mitre.org" target="_blank">CWE / MITRE ATT&CK</a></li>
+            </ul>
+          </div>
+          <div>
+            <h3>Security Tools</h3>
+            <ul style="font-size: 0.95em;">
+              <li><a href="https://snyk.io" target="_blank">Snyk</a> — Dependency scanning</li>
+              <li><a href="https://socket.dev" target="_blank">Socket.dev</a> — Supply chain</li>
+              <li><a href="https://helmetjs.github.io" target="_blank">Helmet.js</a> — Headers</li>
+              <li><a href="https://github.com/cure53/DOMPurify" target="_blank">DOMPurify</a> — XSS prevention</li>
+            </ul>
+          </div>
+          <div>
+            <h3>Standards & RFCs</h3>
+            <ul style="font-size: 0.95em;">
+              <li><a href="https://github.com/OWASP/ASVS" target="_blank">OWASP ASVS</a> — Verification</li>
+              <li><a href="https://pages.nist.gov/800-63-3/" target="_blank">NIST 800-63</a> — Digital identity</li>
+              <li><a href="https://tools.ietf.org/html/rfc7519" target="_blank">RFC 7519</a> — JWT</li>
+              <li><a href="https://tools.ietf.org/html/rfc6749" target="_blank">RFC 6749</a> — OAuth 2.0</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/plugin/highlight/highlight.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/plugin/notes/notes.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/plugin/zoom/zoom.js"></script>
+  <script>
+    Reveal.initialize({
+      hash: true,
+      navigationMode: 'default',
+      autoAnimateEasing: 'ease-out',
+      autoAnimateDuration: 0.6,
+      plugins: [RevealHighlight, RevealNotes, RevealZoom],
+      highlight: {
+        highlightOnLoad: true
+      }
+    });
+  </script>
+</body>
+</html>

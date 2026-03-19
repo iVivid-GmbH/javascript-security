@@ -1,4 +1,4 @@
-name: Deploy Slidev to GitHub Pages
+name: Deploy to GitHub Pages
 
 on:
   push:
@@ -17,33 +17,53 @@ concurrency:
 
 jobs:
   build:
-    name: Build Slidev SPA
+    name: Build static site
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4   # latest: v4.2.2
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
+      # ── Primary presentation: Reveal.js (slides.html) ──────────────────
+      # slides.html is self-contained (CDN-based), no build step needed.
+      # Copy it as the index so it's served at the root of the Pages site.
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Prepare dist folder
+        run: |
+          mkdir -p dist
+          # Reveal.js 2D presentation → site root
+          cp slides.html dist/index.html
 
-      - name: Install Playwright Chromium (for PDF export)
-        run: npx playwright install chromium --with-deps
+          # Copy all markdown docs so they're browsable from GitHub Pages
+          cp README.md dist/README.md
+          cp -r [0-9][0-9]-*.md dist/ 2>/dev/null || true
 
-      - name: Build Slidev SPA
-        run: npm run build
-        # Output goes to ./dist/
+          # Create a small redirect page for the old /slides path
+          cat > dist/slidev.html << 'EOF'
+          <!DOCTYPE html>
+          <html><head><meta charset="utf-8">
+          <title>Redirecting...</title>
+          <meta http-equiv="refresh" content="0; url=./index.html">
+          </head><body>
+          <p><a href="./index.html">Click here</a> if not redirected.</p>
+          </body></html>
+          EOF
+
+      # ── Optional: also build Slidev SPA into dist/slidev/ ──────────────
+      # Uncomment this block if you want both presentations deployed:
+      #
+      # - name: Setup Node.js
+      #   uses: actions/setup-node@v4
+      #   with:
+      #     node-version: '22'
+      #     cache: 'npm'
+      # - run: npm ci
+      # - run: npx slidev build slides.md --base /javascript-security/slidev/ --out dist/slidev
 
       - name: Setup GitHub Pages
-        uses: actions/configure-pages@v4
+        uses: actions/configure-pages@v5   # updated from v4 → v5
 
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v3   # v3 is still current (v4 is upload-artifact, different action)
         with:
           path: dist/
 
@@ -57,4 +77,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v4   # latest: v4

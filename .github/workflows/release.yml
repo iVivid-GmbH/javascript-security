@@ -20,47 +20,56 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4   # latest: v4.2.2
 
-      # ─────────────────────────────────────────────
-      # 1. Slidev Presentation PDF
-      # ─────────────────────────────────────────────
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v4   # latest: v4.x
         with:
-          node-version: '20'
+          node-version: '22'   # upgraded from 20 → 22 (current LTS)
           cache: 'npm'
 
       - name: Install Node dependencies
         run: npm ci
 
-      - name: Install Playwright Chromium (required for Slidev PDF export)
+      - name: Install Playwright browsers (Chromium for PDF export)
         run: npx playwright install chromium --with-deps
 
-      - name: Export Slidev presentation as PDF
+      # ─────────────────────────────────────────────
+      # 1. Export Reveal.js presentation as PDF
+      #    Uses ?print-pdf Reveal.js feature + Playwright
+      # ─────────────────────────────────────────────
+      - name: Export Reveal.js presentation (slides.html) as PDF
         run: |
           mkdir -p dist
-          npx slidev export slides.md \
-            --format pdf \
-            --output dist/js-security-presentation.pdf \
-            --timeout 60000
+          node scripts/export-reveal-pdf.js dist/js-security-reveal-presentation.pdf
 
       # ─────────────────────────────────────────────
-      # 2. Combined Markdown → PDF
+      # 2. Export Slidev presentation as PDF
       # ─────────────────────────────────────────────
-      - name: Install Pandoc and wkhtmltopdf
+      - name: Export Slidev presentation (slides.md) as PDF
+        run: |
+          npx slidev export slides.md \
+            --format pdf \
+            --output dist/js-security-slidev-presentation.pdf \
+            --timeout 90000
+        continue-on-error: true  # don't fail release if Slidev PDF fails
+
+      # ─────────────────────────────────────────────
+      # 3. Combine all concept markdown files into one PDF
+      # ─────────────────────────────────────────────
+      - name: Install Pandoc
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y pandoc wkhtmltopdf xvfb
 
-      - name: Combine all concept markdown files into one document
+      - name: Combine concept markdowns into one document
         run: |
-          # Write a title page
-          cat > /tmp/combined-header.md << 'EOF'
+          {
+            # Pandoc YAML front matter
+            cat << 'FRONTMATTER'
           ---
           title: "JavaScript & Frontend Security — Complete Reference"
-          author: "Security Reference Documentation"
-          date: "$(date +%Y-%m-%d)"
+          author: "Security Reference"
           toc: true
           toc-depth: 2
           geometry: "margin=2.5cm"
@@ -68,29 +77,24 @@ jobs:
           colorlinks: true
           linkcolor: blue
           ---
-          EOF
+          FRONTMATTER
 
-          # Concatenate README + all numbered concept files in order
-          {
-            cat /tmp/combined-header.md
+          echo ""
+          cat README.md
+
+          # Sort and append all numbered concept files
+          for f in $(ls [0-9][0-9]-*.md | sort -V); do
             echo ""
-            echo "\\newpage"
+            echo "---"
             echo ""
-            cat README.md
-            echo ""
-            # Sort numerically by filename prefix
-            for f in $(ls [0-9][0-9]-*.md | sort); do
-              echo ""
-              echo "\\newpage"
-              echo ""
-              cat "$f"
-            done
+            cat "$f"
+          done
           } > /tmp/combined-docs.md
 
-      - name: Convert combined markdown to PDF via Pandoc
+      - name: Convert combined markdown to PDF
         run: |
           xvfb-run --auto-servernum pandoc /tmp/combined-docs.md \
-            --from=markdown+fenced_code_blocks+backtick_code_blocks \
+            --from=markdown+fenced_code_blocks \
             --to=pdf \
             --pdf-engine=wkhtmltopdf \
             --pdf-engine-opt="--enable-local-file-access" \
@@ -102,10 +106,11 @@ jobs:
             -o dist/js-security-complete-reference.pdf \
             2>&1 || true
 
-          # Fallback: if wkhtmltopdf fails, try pdflatex route
-          if [ ! -f dist/js-security-complete-reference.pdf ]; then
-            echo "Trying pdflatex fallback..."
-            sudo apt-get install -y texlive-xetex texlive-fonts-recommended
+          # Fallback: xelatex if wkhtmltopdf fails
+          if [ ! -f dist/js-security-complete-reference.pdf ] || \
+             [ ! -s dist/js-security-complete-reference.pdf ]; then
+            echo "wkhtmltopdf failed — trying xelatex fallback..."
+            sudo apt-get install -y texlive-xetex texlive-fonts-recommended texlive-fonts-extra
             pandoc /tmp/combined-docs.md \
               --from=markdown \
               --to=pdf \
@@ -117,7 +122,7 @@ jobs:
           fi
 
       # ─────────────────────────────────────────────
-      # 3. Create GitHub Release with both PDFs
+      # 4. Create GitHub Release with all PDFs
       # ─────────────────────────────────────────────
       - name: Determine release tag
         id: tag
@@ -128,39 +133,45 @@ jobs:
             echo "tag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
           fi
 
+      - name: List generated artifacts
+        run: ls -lah dist/*.pdf 2>/dev/null || echo "No PDFs found"
+
       - name: Create GitHub Release and upload PDFs
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v2   # latest: v2
         with:
           tag_name: ${{ steps.tag.outputs.tag }}
           name: "JS Security Reference ${{ steps.tag.outputs.tag }}"
           body: |
             ## 📦 Release ${{ steps.tag.outputs.tag }}
 
-            ### Artifacts included:
+            ### Artifacts
 
             | File | Description |
             |------|-------------|
-            | `js-security-presentation.pdf` | Slidev slide deck exported as PDF (all slides) |
-            | `js-security-complete-reference.pdf` | All 45 concept markdown files combined into one PDF document |
+            | `js-security-reveal-presentation.pdf` | **Reveal.js** slide deck — 2D navigation, code animations |
+            | `js-security-slidev-presentation.pdf` | **Slidev** slide deck — alternative export |
+            | `js-security-complete-reference.pdf` | All 45 concept markdown files combined into one document |
 
             ### What's Covered
             45 JavaScript & Frontend security concepts across 9 categories:
-            - Client-Side Attacks (XSS, Clickjacking, Prototype Pollution, …)
-            - Injection Attacks (SQL, NoSQL, Command, LDAP, Template)
-            - Cross-Origin & Request Forgery (CSRF, CORS, SSRF)
-            - Authentication & Authorization (JWT, OAuth/OIDC, IDOR, …)
-            - Transport Security (HTTPS, HSTS, MitM, Certificate Pinning, WebSockets)
-            - HTTP Security Headers (CSP, Cookies, Referrer Policy, MIME Sniffing)
-            - Supply Chain (Supply Chain Attacks, SRI, Outdated Components)
-            - API & Backend Security (Rate Limiting, Crypto Failures, Mass Assignment)
-            - Availability & Monitoring (DoS/DDoS, Logging, Insecure Design)
+            - 🔴 Client-Side Attacks (XSS, Clickjacking, Prototype Pollution, DOM Clobbering, ReDoS, …)
+            - 🟠 Injection Attacks (SQL, NoSQL, Command, LDAP, Template/SSTI)
+            - 🟡 Cross-Origin & Request Forgery (CSRF, CORS Misconfiguration, SSRF)
+            - 🟢 Authentication & Authorization (JWT, OAuth/OIDC, Broken AC, IDOR, Sessions)
+            - 🔵 Transport Security (HTTPS, HSTS, MitM, Certificate Pinning, WebSockets)
+            - 🟣 HTTP Security Headers (CSP, Secure Cookies, Referrer Policy, MIME Sniffing)
+            - ⚫ Supply Chain (Supply Chain Attacks, SRI, Outdated Components, Third-Party Scripts)
+            - 🔶 API & Backend Security (Rate Limiting, Crypto Failures, Mass Assignment)
+            - 🔷 Availability & Monitoring (DoS/DDoS, Logging, Insecure Design/STRIDE)
 
-            ### 🌐 Live Presentation
-            View the interactive Slidev presentation on GitHub Pages:
+            ### 🌐 Live Interactive Presentation
             `https://<your-username>.github.io/<your-repo-name>/`
+            (Reveal.js — use ➡ for next category, ⬇ to dive into concepts)
           files: |
-            dist/js-security-presentation.pdf
+            dist/js-security-reveal-presentation.pdf
+            dist/js-security-slidev-presentation.pdf
             dist/js-security-complete-reference.pdf
+          fail_on_unmatched_files: false   # don't fail if Slidev PDF was skipped
           draft: false
           prerelease: false
           generate_release_notes: true
